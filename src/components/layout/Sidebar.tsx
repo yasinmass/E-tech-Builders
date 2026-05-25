@@ -65,8 +65,8 @@ export function Sidebar() {
 
   const header = (
     <div className="flex items-center gap-3 px-6 py-6 border-b border-sidebar-border">
-      <div className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center">
-        <HardHat className="w-6 h-6 text-primary-foreground" />
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center p-1.5 shadow-sm border border-sidebar-border/30">
+        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
       </div>
       <div>
         <div className="text-sidebar-foreground font-display font-semibold leading-tight text-lg">
@@ -82,7 +82,9 @@ export function Sidebar() {
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar text-sidebar-foreground flex items-center justify-between px-4 z-40 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
-          <HardHat className="w-5 h-5 text-primary" />
+          <div className="w-8 h-8 rounded-lg bg-white p-1">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+          </div>
           <span className="font-display font-semibold">E Tech Builders</span>
         </div>
         <button
