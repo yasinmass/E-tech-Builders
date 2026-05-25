@@ -104,9 +104,10 @@ export function AssignWorkersForm({ building }: { building: Building }) {
               </select>
               <input
                 type="number"
-                min={1}
+                min={0}
+                step={0.5}
                 value={row.count}
-                onChange={(e) => update(row.id, { count: Math.max(0, Number(e.target.value) || 0) })}
+                onChange={(e) => update(row.id, { count: Math.max(0, parseFloat(e.target.value) || 0) })}
                 className="w-24 px-3 py-2.5 rounded-xl border border-border bg-card focus:border-ring focus:ring-4 focus:ring-ring/20 outline-none"
               />
               <button

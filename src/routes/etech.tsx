@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useETechProjects } from "@/hooks/useETech";
 import { BuildingCard } from "@/components/buildings/BuildingCard";
 import { AssignMembersModal } from "@/components/etech/AssignMembersModal";
 import { AddETechModal } from "@/components/etech/AddETechModal";
+import { EditETechModal } from "@/components/etech/EditETechModal";
+import { useETechProjects, useDeleteETechProject } from "@/hooks/useETech";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, Loader2, AlertCircle, HardHat, Search } from "lucide-react";
@@ -22,7 +23,9 @@ export const Route = createFileRoute("/etech")({
 
 function ETechAssignmentPage() {
   const { data: projects = [], isLoading, error, refetch } = useETechProjects();
+  const deleteProject = useDeleteETechProject();
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [editProject, setEditProject] = useState<any>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -148,9 +151,20 @@ function ETechAssignmentPage() {
                     building={adaptProject(project)} 
                     index={index} 
                     onClick={() => setSelectedProject(project)} 
-                    onDelete={(id, e) => {
+                    onEdit={(p, e) => {
                       e.stopPropagation();
-                      toast.info("E Tech deletion requested");
+                      setEditProject(project);
+                    }}
+                    onDelete={async (id, e) => {
+                      e.stopPropagation();
+                      if (confirm("Are you sure you want to delete this E Tech project?")) {
+                        try {
+                          await deleteProject.mutateAsync(id);
+                          toast.success("Project deleted successfully");
+                        } catch (err) {
+                          toast.error("Failed to delete project");
+                        }
+                      }
                     }}
                   />
                 </motion.div>
@@ -182,6 +196,12 @@ function ETechAssignmentPage() {
       <AddETechModal 
         open={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
+      />
+
+      <EditETechModal
+        project={editProject}
+        open={!!editProject}
+        onClose={() => setEditProject(null)}
       />
     </div>
   );

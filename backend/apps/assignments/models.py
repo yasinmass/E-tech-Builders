@@ -50,7 +50,7 @@ class WorkDetail(models.Model):
         related_name="details",
     )
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    count = models.PositiveIntegerField(default=0)
+    count = models.DecimalField(max_digits=6, decimal_places=1, default=0)
 
     class Meta:
         verbose_name = "Work Detail"

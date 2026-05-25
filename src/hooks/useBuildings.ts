@@ -3,6 +3,7 @@ import {
   getBuildings,
   getBuildingById,
   createBuilding,
+  updateBuilding,
   deleteBuilding,
   type CreateBuildingPayload,
 } from "@/api/buildings";
@@ -32,6 +33,17 @@ export function useCreateBuilding() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateBuildingPayload) => createBuilding(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: BUILDINGS_KEY });
+    },
+  });
+}
+
+export function useUpdateBuilding() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateBuildingPayload> }) =>
+      updateBuilding(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: BUILDINGS_KEY });
     },

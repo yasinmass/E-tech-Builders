@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "apps.buildings",
     "apps.assignments",
     "apps.etech",
+    "apps.backup",
 ]
 
 MIDDLEWARE = [

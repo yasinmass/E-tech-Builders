@@ -34,7 +34,7 @@ class WorkDetailWriteSerializer(serializers.Serializer):
     """Incoming detail row: category + count."""
 
     category = serializers.ChoiceField(choices=[c[0] for c in CATEGORY_CHOICES])
-    count = serializers.IntegerField(min_value=1)
+    count = serializers.DecimalField(max_digits=6, decimal_places=1, min_value=0.1)
 
 
 class WorkSessionWriteSerializer(serializers.Serializer):
@@ -99,7 +99,7 @@ class FlatAssignmentSerializer(serializers.Serializer):
     buildingId = serializers.CharField(source="building")
     buildingName = serializers.CharField()
     category = serializers.SerializerMethodField()
-    count = serializers.IntegerField(source="total_workers")
+    count = serializers.DecimalField(source="total_workers", max_digits=6, decimal_places=1)
     date = serializers.SerializerMethodField()
     details = serializers.SerializerMethodField()
 

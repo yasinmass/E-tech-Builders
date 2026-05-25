@@ -6,6 +6,7 @@ import { useBuildings, useDeleteBuilding } from "@/hooks/useBuildings";
 import { BuildingCard } from "@/components/buildings/BuildingCard";
 import { AddBuildingModal } from "@/components/buildings/AddBuildingModal";
 import { BuildingDetailModal } from "@/components/buildings/BuildingDetailModal";
+import { EditBuildingModal } from "@/components/buildings/EditBuildingModal";
 import type { Building } from "@/data/buildings";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ function BuildingsPage() {
   const deleteMutation = useDeleteBuilding();
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Building | null>(null);
+  const [editSelected, setEditSelected] = useState<Building | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBuildings = buildings.filter((b) =>
@@ -126,6 +128,10 @@ function BuildingsPage() {
                   building={b} 
                   index={index} 
                   onClick={() => setSelected(b)} 
+                  onEdit={(b, e) => {
+                    e.stopPropagation();
+                    setEditSelected(b);
+                  }}
                   onDelete={handleDelete}
                 />
               </motion.div>
@@ -135,6 +141,11 @@ function BuildingsPage() {
       </motion.div>
 
       <AddBuildingModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <EditBuildingModal 
+        building={editSelected} 
+        open={!!editSelected} 
+        onClose={() => setEditSelected(null)} 
+      />
       <BuildingDetailModal building={selected} onClose={() => setSelected(null)} />
     </div>
   );

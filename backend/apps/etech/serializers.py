@@ -82,7 +82,7 @@ class ETechFlatAssignmentSerializer(serializers.Serializer):
     buildingId = serializers.CharField(source="project") # For compatibility with FE type naming
     buildingName = serializers.CharField(source="projectName")
     category = serializers.SerializerMethodField()
-    count = serializers.IntegerField(source="total_workers")
+    count = serializers.DecimalField(source="total_workers", max_digits=6, decimal_places=1)
     date = serializers.SerializerMethodField()
     details = serializers.SerializerMethodField()
     type = serializers.ReadOnlyField(default="etech")

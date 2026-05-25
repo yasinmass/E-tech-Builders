@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ChevronRight, MapPin, Phone, Trash2 } from "lucide-react";
+import { Edit2, ChevronRight, MapPin, Phone, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Building } from "@/data/buildings";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,11 @@ interface BuildingCardProps {
   building: Building;
   index: number;
   onClick: () => void;
+  onEdit?: (building: Building, e: React.MouseEvent) => void;
   onDelete?: (id: string, e: React.MouseEvent) => void;
 }
 
-export function BuildingCard({ building, index, onClick, onDelete }: BuildingCardProps) {
+export function BuildingCard({ building, index, onClick, onEdit, onDelete }: BuildingCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -51,6 +52,19 @@ export function BuildingCard({ building, index, onClick, onDelete }: BuildingCar
       </div>
 
       <div className="flex-shrink-0 flex items-center gap-2">
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(building, e);
+            }}
+            className="w-10 h-10 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+          >
+            <Edit2 className="w-5 h-5" />
+          </Button>
+        )}
         
         {onDelete && (
           <Button

@@ -71,7 +71,7 @@ class ETechAssignmentDetail(models.Model):
         ETechAssignment, on_delete=models.CASCADE, related_name="details"
     )
     category = models.ForeignKey(ETechCategory, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(default=0)
+    count = models.DecimalField(max_digits=6, decimal_places=1, default=0)
 
     class Meta:
         verbose_name = "E Tech Assignment Detail"

@@ -5,6 +5,8 @@ import {
   addETechCategory,
   deleteETechCategory,
   createETechAssignment,
+  updateETechProject,
+  deleteETechProject,
   type CreateETechPayload,
   type CreateETechAssignmentPayload,
 } from "@/api/etech";
@@ -23,6 +25,23 @@ export function useCreateETechProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: createETechProject,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ETECH_KEY }),
+  });
+}
+
+export function useUpdateETechProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateETechPayload> }) =>
+      updateETechProject(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ETECH_KEY }),
+  });
+}
+
+export function useDeleteETechProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteETechProject,
     onSuccess: () => qc.invalidateQueries({ queryKey: ETECH_KEY }),
   });
 }

@@ -20,6 +20,7 @@ urlpatterns = [
     path("api/", include("apps.buildings.urls")),
     path("api/", include("apps.assignments.urls")),
     path("api/etech/", include("apps.etech.urls")),
+    path("api/", include("apps.backup.urls")),
 ]
 
 # Serve media files during development

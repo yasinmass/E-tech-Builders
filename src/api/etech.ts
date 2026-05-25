@@ -51,3 +51,26 @@ export async function createETechAssignment(payload: CreateETechAssignmentPayloa
   const { data } = await api.post("/etech/assignments/", payload);
   return data;
 }
+
+export async function updateETechProject(
+  id: string,
+  payload: Partial<CreateETechPayload>
+): Promise<ETechProject> {
+  const formData = new FormData();
+  if (payload.name) formData.append("name", payload.name);
+  if (payload.ownerName !== undefined) formData.append("ownerName", payload.ownerName);
+  if (payload.location !== undefined) formData.append("location", payload.location);
+  if (payload.contact !== undefined) formData.append("contact", payload.contact);
+  if (payload.description !== undefined) formData.append("description", payload.description);
+  if (payload.ownerPhoto) formData.append("ownerPhoto", payload.ownerPhoto);
+  if (payload.sitePhoto) formData.append("sitePhoto", payload.sitePhoto);
+
+  const { data } = await api.patch<ETechProject>(`/etech/projects/${id}/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function deleteETechProject(id: string): Promise<void> {
+  await api.delete(`/etech/projects/${id}/`);
+}

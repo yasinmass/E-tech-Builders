@@ -27,6 +27,7 @@ interface Selection {
   [memberId: string]: {
     selected: boolean;
     name: string;
+    count: number;
   };
 }
 
@@ -85,8 +86,20 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
     setSelections((prev) => ({
       ...prev,
       [memberId]: {
+        ...prev[memberId],
         selected,
         name,
+        count: prev[memberId]?.count || 1,
+      },
+    }));
+  };
+
+  const handleCountChange = (memberId: string, count: number) => {
+    setSelections((prev) => ({
+      ...prev,
+      [memberId]: {
+        ...prev[memberId],
+        count,
       },
     }));
   };
@@ -94,7 +107,7 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
   const handleSave = async () => {
     const selectedMembers = Object.entries(selections)
       .filter(([_, data]) => data.selected)
-      .map(([id, data]) => ({ id, name: data.name }));
+      .map(([id, data]) => ({ id, name: data.name, count: data.count }));
 
     if (selectedMembers.length === 0) {
       toast.error("Please select at least one member");
@@ -108,7 +121,7 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
       // The backend will find or create a category for each worker name
       const details = selectedMembers.map((m) => ({
         category_name: m.name,
-        count: 1,
+        count: m.count,
       }));
 
       await mutation.mutateAsync({
@@ -193,8 +206,10 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
                 key={member.id}
                 member={member}
                 isSelected={!!selections[member.id]?.selected}
+                count={selections[member.id]?.count || 1}
                 isDisabled={alreadyAssignedNames.has(member.name)}
                 onToggle={(selected) => handleToggle(member.id, member.name, selected)}
+                onCountChange={(count) => handleCountChange(member.id, count)}
               />
             ))
           ) : (
