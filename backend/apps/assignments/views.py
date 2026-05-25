@@ -170,3 +170,44 @@ class FilterView(generics.ListAPIView):
         results.sort(key=lambda x: (x["date"], x["id"]), reverse=True)
 
         return Response(results)
+
+
+class StatsView(APIView):
+    """
+    GET /api/stats/
+    Returns summary counts for the dashboard.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from apps.buildings.models import Building
+        from apps.etech.models import ETechProject
+
+        builder_count = Building.objects.count()
+        builder_total_assigned = WorkDetail.objects.aggregate(
+            total=Sum("count")
+        )["total"] or 0
+
+        etech_count = ETechProject.objects.count()
+        # Count distinct ETech assigned members (details)
+        from apps.etech.models import ETechAssignmentDetail
+        etech_total_assigned = ETechAssignmentDetail.objects.aggregate(
+            total=Sum("count")
+        )["total"] or 0
+
+        # Count total work sessions (builder) and etech assignments
+        builder_sessions = WorkSession.objects.values("building", "work_date").distinct().count()
+        etech_sessions = ETechAssignment.objects.values("project", "work_date").distinct().count()
+
+        return Response({
+            "builders": {
+                "count": builder_count,
+                "total_assigned": builder_total_assigned,
+                "sessions": builder_sessions,
+            },
+            "etech": {
+                "count": etech_count,
+                "total_assigned": etech_total_assigned,
+                "sessions": etech_sessions,
+            },
+        })
