@@ -9,14 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MembersRouteImport } from './routes/members'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FilterRouteImport } from './routes/filter'
+import { Route as EtechRouteImport } from './routes/etech'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuildingsRouteImport } from './routes/buildings'
 import { Route as IndexRouteImport } from './routes/index'
 
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FilterRoute = FilterRouteImport.update({
   id: '/filter',
   path: '/filter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtechRoute = EtechRouteImport.update({
+  id: '/etech',
+  path: '/etech',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -39,43 +57,98 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
+  '/etech': typeof EtechRoute
   '/filter': typeof FilterRoute
+  '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
+  '/etech': typeof EtechRoute
   '/filter': typeof FilterRoute
+  '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
+  '/etech': typeof EtechRoute
   '/filter': typeof FilterRoute
+  '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/buildings' | '/dashboard' | '/filter'
+  fullPaths:
+    | '/'
+    | '/buildings'
+    | '/dashboard'
+    | '/etech'
+    | '/filter'
+    | '/login'
+    | '/members'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/buildings' | '/dashboard' | '/filter'
-  id: '__root__' | '/' | '/buildings' | '/dashboard' | '/filter'
+  to:
+    | '/'
+    | '/buildings'
+    | '/dashboard'
+    | '/etech'
+    | '/filter'
+    | '/login'
+    | '/members'
+  id:
+    | '__root__'
+    | '/'
+    | '/buildings'
+    | '/dashboard'
+    | '/etech'
+    | '/filter'
+    | '/login'
+    | '/members'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuildingsRoute: typeof BuildingsRoute
   DashboardRoute: typeof DashboardRoute
+  EtechRoute: typeof EtechRoute
   FilterRoute: typeof FilterRoute
+  LoginRoute: typeof LoginRoute
+  MembersRoute: typeof MembersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/filter': {
       id: '/filter'
       path: '/filter'
       fullPath: '/filter'
       preLoaderRoute: typeof FilterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etech': {
+      id: '/etech'
+      path: '/etech'
+      fullPath: '/etech'
+      preLoaderRoute: typeof EtechRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -106,8 +179,21 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuildingsRoute: BuildingsRoute,
   DashboardRoute: DashboardRoute,
+  EtechRoute: EtechRoute,
   FilterRoute: FilterRoute,
+  LoginRoute: LoginRoute,
+  MembersRoute: MembersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -1,20 +1,29 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Filter, HardHat, Menu, X } from "lucide-react";
+import { Link, useRouterState, useRouter } from "@tanstack/react-router";
+import { LayoutDashboard, Building2, Filter, HardHat, Menu, X, LogOut, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { logout } from "@/api/auth";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/buildings", label: "Buildings", icon: Building2 },
+  { to: "/buildings", label: "Builders", icon: Building2 },
+  { to: "/etech", label: "E Tech", icon: HardHat },
+  { to: "/members", label: "Members", icon: Users },
   { to: "/filter", label: "Filter", icon: Filter },
 ] as const;
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.navigate({ to: "/login" });
+  };
 
   const nav = (
-    <nav className="flex flex-col gap-1 px-3 py-4">
+    <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
       {items.map((item) => {
         const Icon = item.icon;
         const active = pathname === item.to || (item.to === "/dashboard" && pathname === "/");
@@ -42,16 +51,28 @@ export function Sidebar() {
     </nav>
   );
 
+  const footer = (
+    <div className="px-3 py-4 border-t border-sidebar-border">
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-colors"
+      >
+        <LogOut className="w-5 h-5" />
+        <span>Logout</span>
+      </button>
+    </div>
+  );
+
   const header = (
     <div className="flex items-center gap-3 px-6 py-6 border-b border-sidebar-border">
       <div className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center">
-        <HardHat className="w-5 h-5 text-primary-foreground" />
+        <HardHat className="w-6 h-6 text-primary-foreground" />
       </div>
       <div>
-        <div className="text-sidebar-foreground font-display font-semibold leading-tight">
-          BuildOps
+        <div className="text-sidebar-foreground font-display font-semibold leading-tight text-lg">
+          E Tech
         </div>
-        <div className="text-xs text-sidebar-muted">Supervisor Suite</div>
+        <div className="text-[10px] font-black uppercase tracking-widest text-primary">Builders</div>
       </div>
     </div>
   );
@@ -62,7 +83,7 @@ export function Sidebar() {
       <div className="md:hidden fixed top-0 inset-x-0 h-14 bg-sidebar text-sidebar-foreground flex items-center justify-between px-4 z-40 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <HardHat className="w-5 h-5 text-primary" />
-          <span className="font-display font-semibold">BuildOps</span>
+          <span className="font-display font-semibold">E Tech Builders</span>
         </div>
         <button
           onClick={() => setMobileOpen((v) => !v)}
@@ -77,6 +98,7 @@ export function Sidebar() {
       <aside className="hidden md:flex fixed top-0 left-0 h-screen w-64 bg-sidebar text-sidebar-foreground flex-col z-30">
         {header}
         {nav}
+        {footer}
       </aside>
 
       {/* Mobile drawer */}
@@ -90,9 +112,10 @@ export function Sidebar() {
             initial={{ x: -280 }}
             animate={{ x: 0 }}
             exit={{ x: -280 }}
-            className="md:hidden fixed top-14 left-0 bottom-0 w-64 bg-sidebar text-sidebar-foreground z-50 border-r border-sidebar-border"
+            className="md:hidden fixed top-14 left-0 bottom-0 w-64 bg-sidebar text-sidebar-foreground z-50 border-r border-sidebar-border flex flex-col"
           >
             {nav}
+            {footer}
           </motion.aside>
         </>
       )}

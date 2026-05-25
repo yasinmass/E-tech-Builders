@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Type definitions — shared across frontend and API layer.
+// All actual data is fetched from the Django backend.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type WorkerCategory =
   | "Electrician"
   | "Plumber"
@@ -19,15 +24,24 @@ export const WORKER_CATEGORIES: WorkerCategory[] = [
   "Women Worker",
 ];
 
+export type AssignmentDetail = {
+  category: string;
+  count: number;
+};
+
+/** Flat assignment row used by the Filter page (matches /api/filter/ response) */
 export type Assignment = {
   id: string;
   buildingId: string;
   buildingName: string;
-  category: WorkerCategory;
+  category: string;
   count: number;
-  date: string; // ISO
+  date: string; // ISO string
+  details: AssignmentDetail[];
+  type: "builder" | "etech";
 };
 
+/** Building entity (matches /api/buildings/ response — camelCase from serializer) */
 export type Building = {
   id: string;
   name: string;
@@ -37,67 +51,22 @@ export type Building = {
   sitePhoto: string;
 };
 
-export const initialBuildings: Building[] = [
-  {
-    id: "b1",
-    name: "Skyline Residency",
-    address: "12 Marina Drive, Chennai",
-    phone: "+91 98765 43210",
-    ownerPhoto: "https://i.pravatar.cc/200?img=12",
-    sitePhoto:
-      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&q=70",
-  },
-  {
-    id: "b2",
-    name: "Greenfield Towers",
-    address: "44 Park Avenue, Bengaluru",
-    phone: "+91 91234 56789",
-    ownerPhoto: "https://i.pravatar.cc/200?img=32",
-    sitePhoto:
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=70",
-  },
-  {
-    id: "b3",
-    name: "Heritage Court",
-    address: "8 Lake Road, Hyderabad",
-    phone: "+91 99887 76655",
-    ownerPhoto: "https://i.pravatar.cc/200?img=58",
-    sitePhoto:
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=70",
-  },
-];
+export type ETechCategory = {
+  id: number;
+  name: string;
+};
 
-export const initialAssignments: Assignment[] = [
-  {
-    id: "a1",
-    buildingId: "b1",
-    buildingName: "Skyline Residency",
-    category: "Mason",
-    count: 6,
-    date: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: "a2",
-    buildingId: "b1",
-    buildingName: "Skyline Residency",
-    category: "Electrician",
-    count: 2,
-    date: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: "a3",
-    buildingId: "b2",
-    buildingName: "Greenfield Towers",
-    category: "Painter",
-    count: 4,
-    date: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: "a4",
-    buildingId: "b3",
-    buildingName: "Heritage Court",
-    category: "Carpenter",
-    count: 3,
-    date: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
+export type ETechProject = {
+  id: string;
+  name: string;
+  ownerName: string;
+  location: string;
+  contact: string;
+  description: string;
+  ownerPhoto?: string;
+  sitePhoto?: string;
+  categories: ETechCategory[];
+  createdAt?: string;
+};
+export const initialBuildings: Building[] = [];
+export const initialAssignments: Assignment[] = [];

@@ -1,4 +1,5 @@
 # Logs
+
 logs
 *.log
 npm-debug.log*
@@ -7,24 +8,53 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
-*.local
+# Node
 
-# Wrangler / Cloudflare
-.wrangler/
+node_modules/
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.tanstack/
+.nitro/
+
+# Python
+
+**pycache**/
+*.py[cod]
+*.sqlite3
+*.db
+
+# Virtual Environment
+
+venv/
+env/
+ENV/
+
+# Django
+
+media/
+staticfiles/
+
+# Environment Variables
+
+.env
+*.local
 .dev.vars
 
-# Editor directories and files
+# IDE
+
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+
+# OS Files
+
+Thumbs.db
+
+# Misc
+
 *.suo
 *.ntvs*
 *.njsproj

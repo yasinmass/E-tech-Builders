@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WORKER_CATEGORIES, type Building, type WorkerCategory } from "@/data/buildings";
-import { addAssignments } from "@/store/app-store";
+import { useCreateAssignment } from "@/hooks/useAssignments";
+import { toast } from "sonner";
 
 type Row = { id: string; category: WorkerCategory; count: number };
 
@@ -10,7 +11,10 @@ export function AssignWorkersForm({ building }: { building: Building }) {
   const [rows, setRows] = useState<Row[]>([
     { id: crypto.randomUUID(), category: "Mason", count: 1 },
   ]);
-  const [saved, setSaved] = useState(false);
+  const [workDate, setWorkDate] = useState(new Date().toISOString().split("T")[0]);
+  const [workTime, setWorkTime] = useState(new Date().toTimeString().split(' ')[0].slice(0, 5));
+  
+  const createAssignment = useCreateAssignment();
 
   const update = (id: string, patch: Partial<Row>) =>
     setRows((r) => r.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -21,24 +25,60 @@ export function AssignWorkersForm({ building }: { building: Building }) {
   const removeRow = (id: string) =>
     setRows((r) => (r.length === 1 ? r : r.filter((row) => row.id !== id)));
 
-  const save = () => {
+  const save = async () => {
     const valid = rows.filter((r) => r.count > 0);
-    if (!valid.length) return;
-    addAssignments(building, valid);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
+    if (!valid.length) {
+      toast.error("Please add at least one row with a count > 0");
+      return;
+    }
+
+    try {
+      await createAssignment.mutateAsync({
+        building: parseInt(building.id),
+        work_date: workDate,
+        work_time: workTime,
+        details: valid.map(({ category, count }) => ({ category, count })),
+      });
+      toast.success("Assignment saved successfully");
+      setRows([{ id: crypto.randomUUID(), category: "Mason", count: 1 }]);
+    } catch (err) {
+      toast.error("Failed to save assignment");
+    }
   };
 
   return (
     <div className="mt-6 border-t border-border pt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display font-semibold text-lg">Assign Workers</h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-display font-semibold text-lg flex items-center gap-2">
+          Assign Workers
+        </h3>
         <button
           onClick={addRow}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
         >
           <Plus className="w-4 h-4" /> Add Row
         </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Work Date</label>
+          <input 
+            type="date"
+            value={workDate}
+            onChange={(e) => setWorkDate(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-border bg-card outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium text-sm"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Work Time</label>
+          <input 
+            type="time"
+            value={workTime}
+            onChange={(e) => setWorkTime(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-border bg-card outline-none focus:ring-4 focus:ring-primary/10 transition-all font-medium text-sm"
+          />
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -83,20 +123,13 @@ export function AssignWorkersForm({ building }: { building: Building }) {
       </div>
 
       <div className="flex items-center justify-end gap-3 mt-5">
-        {saved && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-sm text-accent font-medium"
-          >
-            Assignment saved
-          </motion.span>
-        )}
         <button
           onClick={save}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-medium hover:opacity-90 transition-opacity"
+          disabled={createAssignment.isPending}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          <Save className="w-4 h-4" /> Save Assignment
+          {createAssignment.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {createAssignment.isPending ? "Saving..." : "Save Assignment"}
         </button>
       </div>
     </div>
