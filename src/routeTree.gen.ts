@@ -15,6 +15,7 @@ import { Route as FilterRouteImport } from './routes/filter'
 import { Route as EtechRouteImport } from './routes/etech'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuildingsRouteImport } from './routes/buildings'
+import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as IndexRouteImport } from './routes/index'
 
 const MembersRoute = MembersRouteImport.update({
@@ -47,6 +48,11 @@ const BuildingsRoute = BuildingsRouteImport.update({
   path: '/buildings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountsRoute = AccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
   '/etech': typeof EtechRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
   '/etech': typeof EtechRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
   '/buildings': typeof BuildingsRoute
   '/dashboard': typeof DashboardRoute
   '/etech': typeof EtechRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/accounts'
     | '/buildings'
     | '/dashboard'
     | '/etech'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/accounts'
     | '/buildings'
     | '/dashboard'
     | '/etech'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/accounts'
     | '/buildings'
     | '/dashboard'
     | '/etech'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountsRoute: typeof AccountsRoute
   BuildingsRoute: typeof BuildingsRoute
   DashboardRoute: typeof DashboardRoute
   EtechRoute: typeof EtechRoute
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounts': {
+      id: '/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountsRoute: AccountsRoute,
   BuildingsRoute: BuildingsRoute,
   DashboardRoute: DashboardRoute,
   EtechRoute: EtechRoute,

@@ -182,22 +182,51 @@ class StatsView(APIView):
     def get(self, request):
         from apps.buildings.models import Building
         from apps.etech.models import ETechProject
+        from apps.finance.models import BuildingAccountTransaction
 
+        # 1. Builder Stats
         builder_count = Building.objects.count()
-        builder_total_assigned = WorkDetail.objects.aggregate(
-            total=Sum("count")
-        )["total"] or 0
-
-        etech_count = ETechProject.objects.count()
-        # Count distinct ETech assigned members (details)
-        from apps.etech.models import ETechAssignmentDetail
-        etech_total_assigned = ETechAssignmentDetail.objects.aggregate(
-            total=Sum("count")
-        )["total"] or 0
-
-        # Count total work sessions (builder) and etech assignments
+        builder_total_assigned = WorkDetail.objects.aggregate(total=Sum("count"))["total"] or 0
         builder_sessions = WorkSession.objects.values("building", "work_date").distinct().count()
+
+        # 2. E Tech Stats
+        etech_count = ETechProject.objects.count()
+        from apps.etech.models import ETechAssignmentDetail
+        etech_total_assigned = ETechAssignmentDetail.objects.aggregate(total=Sum("count"))["total"] or 0
         etech_sessions = ETechAssignment.objects.values("project", "work_date").distinct().count()
+
+        # 3. Finance Stats
+        finance_qs = BuildingAccountTransaction.objects.all()
+        total_income = finance_qs.filter(transaction_type='income').aggregate(total=Sum('amount'))['total'] or 0
+        total_expense = finance_qs.filter(transaction_type='expense').aggregate(total=Sum('amount'))['total'] or 0
+        current_balance = total_income - total_expense
+
+        # 4. Recent Activity
+        recent_activity = []
+        
+        # Recent Assignments (Builders)
+        recent_builder = WorkSession.objects.select_related('building').order_by('-work_date', '-id')[:5]
+        for session in recent_builder:
+            recent_activity.append({
+                "type": "builder",
+                "message": f"Assigned workers to {session.building.name}",
+                "date": session.work_date.isoformat(),
+                "time": session.work_time.isoformat() if session.work_time else "00:00:00"
+            })
+
+        # Recent Transactions
+        recent_tx = BuildingAccountTransaction.objects.select_related('building').order_by('-created_at')[:5]
+        for tx in recent_tx:
+            recent_activity.append({
+                "type": "transaction",
+                "message": f"{tx.get_transaction_type_display()} recorded for {tx.building.name}: {tx.category}",
+                "date": tx.created_at.isoformat(),
+                "time": tx.created_at.strftime("%H:%M:%S")
+            })
+
+        # Sort combined activity and take top 8
+        recent_activity.sort(key=lambda x: (x["date"], x["time"]), reverse=True)
+        recent_activity = recent_activity[:8]
 
         return Response({
             "builders": {
@@ -210,4 +239,10 @@ class StatsView(APIView):
                 "total_assigned": etech_total_assigned,
                 "sessions": etech_sessions,
             },
+            "finance": {
+                "total_income": total_income,
+                "total_expense": total_expense,
+                "current_balance": current_balance,
+            },
+            "recent_activity": recent_activity
         })

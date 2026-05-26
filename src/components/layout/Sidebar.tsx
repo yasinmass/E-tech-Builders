@@ -1,5 +1,5 @@
 import { Link, useRouterState, useRouter } from "@tanstack/react-router";
-import { LayoutDashboard, Building2, Filter, HardHat, Menu, X, LogOut, Users } from "lucide-react";
+import { LayoutDashboard, Building2, Filter, HardHat, Menu, X, LogOut, Users, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { logout } from "@/api/auth";
@@ -9,6 +9,7 @@ const items = [
   { to: "/buildings", label: "Builders", icon: Building2 },
   { to: "/etech", label: "E Tech", icon: HardHat },
   { to: "/members", label: "Members", icon: Users },
+  { to: "/accounts", label: "Accounts", icon: Wallet },
   { to: "/filter", label: "Filter", icon: Filter },
 ] as const;
 
