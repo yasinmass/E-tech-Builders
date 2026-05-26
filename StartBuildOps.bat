@@ -1,4 +1,11 @@
 @echo off
-start cmd /k "cd /d %~dp0backend && python manage.py runserver"
-start cmd /k "npm run dev"
-echo BuildOps is starting... Please wait a few seconds then open http://localhost:5173
+
+start "" "%~dp0start_backend.vbs"
+
+timeout /t 5 >nul
+
+start "" "%~dp0start_frontend.vbs"
+
+timeout /t 10 >nul
+
+start http://localhost:8081/dashboard
