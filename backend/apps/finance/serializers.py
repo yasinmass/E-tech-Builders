@@ -8,7 +8,7 @@ class BuildingAccountTransactionSerializer(serializers.ModelSerializer):
         model = BuildingAccountTransaction
         fields = [
             'id', 'building', 'building_name', 'transaction_type', 
-            'category', 'amount', 'notes', 'created_at'
+            'category', 'amount', 'notes', 'date', 'created_at'
         ]
 
 class BuildingAccountSummarySerializer(serializers.Serializer):

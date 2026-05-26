@@ -8,6 +8,7 @@ export interface Transaction {
   category: string;
   amount: number | string;
   notes: string;
+  date: string;
   created_at: string;
   running_balance?: number;
 }
@@ -24,6 +25,7 @@ export interface CreateTransactionPayload {
   category: string;
   amount: number;
   notes: string;
+  date: string;
 }
 
 export async function getTransactions(params: {

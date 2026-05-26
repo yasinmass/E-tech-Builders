@@ -37,7 +37,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
   const filtered = transactions.filter(t => 
     t.category.toLowerCase().includes(search.toLowerCase()) ||
     t.notes.toLowerCase().includes(search.toLowerCase()) ||
-    t.amount.toString().includes(search)
+    t.amount.toString().includes(search) ||
+    t.date.includes(search)
   );
 
   return (
@@ -86,7 +87,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3 h-3 text-gray-400" />
                         <span className="text-sm font-medium text-gray-600">
-                          {format(new Date(t.created_at), "MMM d, yyyy")}
+                          {format(new Date(t.date), "dd/MM/yyyy")}
                         </span>
                       </div>
                     </td>

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from apps.buildings.models import Building
 
 class BuildingAccountTransaction(models.Model):
@@ -31,10 +32,11 @@ class BuildingAccountTransaction(models.Model):
     category = models.CharField(max_length=50) # We'll validate this in serializer or form
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     notes = models.TextField(blank=True, default="")
+    date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-date', '-created_at']
         verbose_name = "Building Account Transaction"
         verbose_name_plural = "Building Account Transactions"
 

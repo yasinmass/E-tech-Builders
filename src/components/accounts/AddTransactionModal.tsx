@@ -46,6 +46,7 @@ const EXPENSE_CATEGORIES = [
 export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransactionModalProps) {
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState("");
   const [otherCategory, setOtherCategory] = useState("");
   const [notes, setNotes] = useState("");
@@ -56,7 +57,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
     e.preventDefault();
     const finalCategory = category === "other" ? otherCategory : category;
 
-    if (!amount || !finalCategory) {
+    if (!amount || !finalCategory || !date) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -68,6 +69,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
         category: finalCategory,
         amount: parseFloat(amount),
         notes,
+        date,
       });
       toast.success("Transaction recorded successfully");
       reset();
@@ -79,6 +81,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
 
   const reset = () => {
     setAmount("");
+    setDate(new Date().toISOString().split('T')[0]);
     setCategory("");
     setOtherCategory("");
     setNotes("");
@@ -124,15 +127,26 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
               </button>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Amount (₹)</label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white text-lg font-bold"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Date</label>
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Amount (₹)</label>
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white text-lg font-bold"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
