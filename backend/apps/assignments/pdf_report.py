@@ -203,10 +203,15 @@ def generate_workforce_pdf(
     story = []
 
     # ── Company + title block (text left, logo top-right) ─────────────────────
-    LOGO_PATH = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        "staticfiles", "assets", "logo.png"
-    )
+    # Standard location: within the app's static folder
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+    LOGO_PATH = os.path.join(APP_DIR, "static", "assignments", "logo.png")
+    
+    # Fallback 1: Project root (where the user originally had it)
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(APP_DIR)))
+    FALLBACK_LOGO = os.path.join(ROOT_DIR, "E_tech_perfect_logo copy.png")
+    
+    selected_logo = LOGO_PATH if os.path.isfile(LOGO_PATH) else FALLBACK_LOGO
 
     period_str = (
         f"Period: {_fmt(from_date)} \u2014 {_fmt(to_date)}"
@@ -224,8 +229,8 @@ def generate_workforce_pdf(
     # Right cell: logo (if file exists), else empty
     LOGO_W = 28 * mm   # width of logo in the PDF
     LOGO_H = 28 * mm   # height of logo in the PDF
-    if os.path.isfile(LOGO_PATH):
-        logo_cell = Image(LOGO_PATH, width=LOGO_W, height=LOGO_H)
+    if os.path.isfile(selected_logo):
+        logo_cell = Image(selected_logo, width=LOGO_W, height=LOGO_H)
         logo_cell.hAlign = "RIGHT"
         right_col = [logo_cell]
     else:
