@@ -5,9 +5,10 @@ import { SearchBar } from "@/components/filter/SearchBar";
 import { AssignmentCard } from "@/components/filter/AssignmentCard";
 import { BreakdownModal } from "@/components/filter/BreakdownModal";
 import { EditAssignmentModal } from "@/components/filter/EditAssignmentModal";
+import { WorkforceReportModal } from "@/components/filter/WorkforceReportModal";
 import { BackupControls } from "@/components/filter/BackupControls";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import type { Assignment } from "@/data/buildings";
 
@@ -26,9 +27,10 @@ function FilterPage() {
   const [debouncedQ, setDebouncedQ] = useState("");
   const [selected, setSelected] = useState<Assignment | null>(null);
   const [editing, setEditing] = useState<Assignment | null>(null);
+  const [pdfOpen, setPdfOpen] = useState(false);
   const [type, setType] = useState<"all" | "builder" | "etech">("all");
 
-  // Debounce search query to avoid too many API calls
+  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQ(q), 400);
     return () => clearTimeout(timer);
@@ -53,15 +55,31 @@ function FilterPage() {
     <div>
       <div className="text-center mb-10 mt-4">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 font-display">Find an assignment</h1>
-        <p className="text-muted-foreground mb-10 leading-relaxed">Click any card to see detailed breakdown or export history.</p>
-        
-        <div className="mb-12">
+        <p className="text-muted-foreground mb-10 leading-relaxed">
+          Click any card to see detailed breakdown or export history.
+        </p>
+
+        <div className="mb-8">
           <BackupControls />
         </div>
-        
+
+        {/* ── Export PDF button ─────────────────────────────────────────── */}
+        <div className="mb-8 flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setPdfOpen(true)}
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-sm text-white shadow-soft transition-all
+              bg-gradient-to-r from-[#1E3A5F] to-[#2563EB] hover:shadow-lift hover:opacity-95"
+          >
+            <FileDown className="w-4 h-4" />
+            Export PDF Report
+          </motion.button>
+        </div>
+
         <div className="max-w-xl mx-auto space-y-6">
           <SearchBar value={q} onChange={setQ} />
-          
+
           <div className="flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border w-fit mx-auto">
             {(["all", "builder", "etech"] as const).map((t) => (
               <button
@@ -119,6 +137,7 @@ function FilterPage() {
 
       <BreakdownModal assignment={selected} onClose={() => setSelected(null)} />
       <EditAssignmentModal assignment={editing} onClose={() => setEditing(null)} />
+      <WorkforceReportModal open={pdfOpen} onClose={() => setPdfOpen(false)} />
     </div>
   );
 }
