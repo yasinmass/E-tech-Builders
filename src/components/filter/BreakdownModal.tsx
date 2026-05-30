@@ -9,7 +9,21 @@ function formatDateTime(iso: string) {
   const year = d.getFullYear();
   const dateStr = `${day}/${month}/${year}`;
   const timeStr = iso.includes('T') ? iso.split('T')[1].slice(0, 5) : "--:--";
-  return { date: dateStr, time: timeStr };
+
+  const formatAMPM = (t: string) => {
+    if (!t || t === "--:--") return "--:--";
+    try {
+      let [hours, minutes] = t.split(':').map(Number);
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      return `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`;
+    } catch (e) {
+      return t;
+    }
+  };
+
+  return { date: dateStr, time: formatAMPM(timeStr) };
 }
 
 export function BreakdownModal({

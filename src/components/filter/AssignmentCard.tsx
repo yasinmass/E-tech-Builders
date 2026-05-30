@@ -30,8 +30,21 @@ export function AssignmentCard({
     if (assignment.type === "builder" && t === "00:00") {
       t = "--:--";
     }
+
+    const formatAMPM = (timeStr: string) => {
+      if (!timeStr || timeStr === "--:--") return "--:--";
+      try {
+        let [hours, minutes] = timeStr.split(':').map(Number);
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        return `${hours}:${String(minutes).padStart(2, '0')} ${ampm}`;
+      } catch (e) {
+        return timeStr;
+      }
+    };
     
-    return { date: dateStr, time: t };
+    return { date: dateStr, time: formatAMPM(t) };
   })();
 
   return (
