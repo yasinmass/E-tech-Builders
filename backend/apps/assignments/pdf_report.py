@@ -4,6 +4,7 @@ GET /api/workforce-report/?from_date=YYYY-MM-DD&to_date=YYYY-MM-DD&buildings=1,2
 """
 
 import io
+import os
 from datetime import date, datetime
 
 from django.http import FileResponse
@@ -19,7 +20,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    HRFlowable, KeepTogether,
+    HRFlowable, KeepTogether, Image,
 )
 
 from .models import WorkSession, WorkDetail
@@ -201,15 +202,51 @@ def generate_workforce_pdf(
     S     = _make_styles()
     story = []
 
-    # ── Company + title block ─────────────────────────────────────────────────
-    story.append(Paragraph("E-TECH BUILDERS", S["company"]))
-    story.append(Paragraph("Workforce Report", S["report_title"]))
+    # ── Company + title block (text left, logo top-right) ─────────────────────
+    LOGO_PATH = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "staticfiles", "assets", "logo.png"
+    )
 
     period_str = (
         f"Period: {_fmt(from_date)} \u2014 {_fmt(to_date)}"
-        f"\u2003|\u2003Generated: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        f"    |    Generated: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
     )
-    story.append(Paragraph(period_str, S["period"]))
+
+    # Left cell: company name + subtitle + period stacked
+    text_cell = [
+        Paragraph("E-TECH BUILDERS", S["company"]),
+        Paragraph("Workforce Report", S["report_title"]),
+        Spacer(1, 4),
+        Paragraph(period_str, S["period"]),
+    ]
+
+    # Right cell: logo (if file exists), else empty
+    LOGO_W = 28 * mm   # width of logo in the PDF
+    LOGO_H = 28 * mm   # height of logo in the PDF
+    if os.path.isfile(LOGO_PATH):
+        logo_cell = Image(LOGO_PATH, width=LOGO_W, height=LOGO_H)
+        logo_cell.hAlign = "RIGHT"
+        right_col = [logo_cell]
+    else:
+        right_col = [Spacer(1, LOGO_H)]
+
+    col_text  = usable - LOGO_W - 4 * mm
+    col_logo  = LOGO_W + 4 * mm
+
+    header_tbl = Table(
+        [[text_cell, right_col]],
+        colWidths=[col_text, col_logo],
+    )
+    header_tbl.setStyle(TableStyle([
+        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN",         (1, 0), (1, 0),   "RIGHT"),
+        ("TOPPADDING",    (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+    ]))
+    story.append(header_tbl)
     story.append(Spacer(1, 4))
     story.append(HRFlowable(width="100%", thickness=1, color=BLACK, spaceAfter=6))
 
