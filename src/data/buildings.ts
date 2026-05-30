@@ -37,6 +37,7 @@ export type Assignment = {
   category: string;
   count: number;
   date: string; // ISO string
+  updatedAt?: string; // ISO string
   details: AssignmentDetail[];
   type: "builder" | "etech";
 };

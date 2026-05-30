@@ -4,6 +4,7 @@ import { useAssignments, useDeleteAssignment } from "@/hooks/useAssignments";
 import { SearchBar } from "@/components/filter/SearchBar";
 import { AssignmentCard } from "@/components/filter/AssignmentCard";
 import { BreakdownModal } from "@/components/filter/BreakdownModal";
+import { EditAssignmentModal } from "@/components/filter/EditAssignmentModal";
 import { BackupControls } from "@/components/filter/BackupControls";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -24,6 +25,7 @@ function FilterPage() {
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [selected, setSelected] = useState<Assignment | null>(null);
+  const [editing, setEditing] = useState<Assignment | null>(null);
   const [type, setType] = useState<"all" | "builder" | "etech">("all");
 
   // Debounce search query to avoid too many API calls
@@ -107,6 +109,7 @@ function FilterPage() {
                 assignment={a}
                 index={i}
                 onClick={() => setSelected(a)}
+                onEdit={(as) => setEditing(as)}
                 onDelete={(id, e) => handleDelete(id, e, a.type)}
               />
             ))
@@ -115,6 +118,7 @@ function FilterPage() {
       </div>
 
       <BreakdownModal assignment={selected} onClose={() => setSelected(null)} />
+      <EditAssignmentModal assignment={editing} onClose={() => setEditing(null)} />
     </div>
   );
 }

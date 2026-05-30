@@ -39,6 +39,18 @@ export async function createAssignment(
   return data;
 }
 
+/** PUT /api/assignments/<id>/ or /api/etech/assignments/<id>/ */
+export async function updateAssignment(
+  id: string,
+  type: "builder" | "etech",
+  payload: any,
+): Promise<WorkSessionDTO> {
+  const endpoint =
+    type === "builder" ? `/assignments/${id}/` : `/etech/assignments/${id}/`;
+  const { data } = await api.put<WorkSessionDTO>(endpoint, payload);
+  return data;
+}
+
 /**
  * GET /api/filter/?search=<query>&type=<builder|etech|all>
  * Returns flat Assignment records matching the query.

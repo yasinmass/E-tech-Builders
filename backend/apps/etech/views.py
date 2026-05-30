@@ -86,10 +86,31 @@ class ETechAssignmentDetailView(APIView):
             return Response({"error": "Assignment not found"}, status=status.HTTP_404_NOT_FOUND)
             
         # Consolidation Fix: Delete all assignments for this project on this date
-        # because they are grouped as a single card in the FilterView
         ETechAssignment.objects.filter(
             project=assignment.project,
             work_date=assignment.work_date
         ).delete()
         
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, pk):
+        """Update a grouped E Tech assignment."""
+        assignment = self.get_object(pk)
+        if not assignment:
+            return Response({"error": "Assignment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        old_project = assignment.project
+        old_date = assignment.work_date
+        
+        serializer = ETechAssignmentWriteSerializer(data=request.data)
+        if serializer.is_valid():
+            # Delete old group
+            ETechAssignment.objects.filter(
+                project=old_project,
+                work_date=old_date
+            ).delete()
+            
+            new_assignment = serializer.save()
+            return Response(ETechAssignmentReadSerializer(new_assignment).data, status=status.HTTP_200_OK)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

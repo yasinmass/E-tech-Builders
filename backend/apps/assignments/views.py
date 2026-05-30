@@ -76,13 +76,45 @@ class AssignmentDetailView(APIView):
             )
         
         # Consolidation Fix: Delete all sessions for this building on this date
-        # because they are grouped as a single card in the FilterView
         WorkSession.objects.filter(
             building=session.building,
             work_date=session.work_date
         ).delete()
         
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, pk):
+        """
+        Update a grouped assignment.
+        Since assignments are grouped by Building+Date in Filter,
+        updating one (via max_id) should replace the entire group's session data.
+        """
+        session = self.get_object(pk)
+        if session is None:
+            return Response(
+                {"detail": "Work session not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # 1. Delete the old group
+        # (This ensures we don't have duplicates or orphan sessions when building/date changes)
+        old_building = session.building
+        old_date = session.work_date
+        
+        # 2. Validate and Save new data
+        serializer = WorkSessionWriteSerializer(data=request.data)
+        if serializer.is_valid():
+            # Delete after validation to be safe
+            WorkSession.objects.filter(
+                building=old_building,
+                work_date=old_date
+            ).delete()
+            
+            new_session = serializer.save()
+            read_serializer = WorkSessionReadSerializer(new_session)
+            return Response(read_serializer.data, status=status.HTTP_200_OK)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 from django.db.models import Sum, Count, Max
@@ -129,6 +161,7 @@ class FilterView(generics.ListAPIView):
                     total_workers=Sum("details__count"),
                     work_time=Max("work_time"),
                     max_id=Max("id"),
+                    max_updated_at=Max("updated_at"),
                     buildingName=Max("building__name"),
                 )
             )
@@ -157,6 +190,7 @@ class FilterView(generics.ListAPIView):
                     total_workers=Sum("details__count"),
                     work_time=Max("work_time"),
                     max_id=Max("id"),
+                    max_updated_at=Max("updated_at"),
                     projectName=Max("project__name"),
                 )
             )

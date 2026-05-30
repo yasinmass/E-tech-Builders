@@ -54,6 +54,7 @@ class ETechAssignment(models.Model):
     work_date = models.DateField()
     work_time = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-work_date", "-created_at"]

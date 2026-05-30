@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Building2, Users, Hash, HardHat, Trash2, Clock } from "lucide-react";
+import { Calendar, Building2, Users, Hash, HardHat, Trash2, Clock, Pencil } from "lucide-react";
 import type { Assignment } from "@/data/buildings";
 import { Button } from "@/components/ui/button";
 
@@ -7,11 +7,13 @@ export function AssignmentCard({
   assignment,
   index,
   onClick,
+  onEdit,
   onDelete,
 }: {
   assignment: Assignment;
   index: number;
   onClick: () => void;
+  onEdit?: (assignment: Assignment) => void;
   onDelete?: (id: string, e: React.MouseEvent) => void;
 }) {
   const { date, time } = (() => {
@@ -45,16 +47,29 @@ export function AssignmentCard({
           <div className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.15em] bg-muted group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-sm">
             {assignment.type === "builder" ? "Builder" : "E Tech"}
           </div>
-          {onDelete && (
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
-              onClick={(e) => onDelete(assignment.id, e)}
-              className="w-10 h-10 rounded-xl text-gray-400 hover:text-destructive hover:bg-destructive/10 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(assignment);
+              }}
+              className="w-9 h-9 rounded-xl text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
             >
-              <Trash2 className="w-5 h-5" />
+              <Pencil className="w-4.5 h-4.5" />
             </Button>
-          )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => onDelete(assignment.id, e)}
+                className="w-9 h-9 rounded-xl text-gray-400 hover:text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-4.5 h-4.5" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

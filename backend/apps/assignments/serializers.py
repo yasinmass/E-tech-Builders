@@ -17,11 +17,12 @@ class WorkSessionReadSerializer(serializers.ModelSerializer):
     buildingName = serializers.SerializerMethodField()
     workDate = serializers.DateField(source="work_date")
     createdAt = serializers.DateTimeField(source="created_at", read_only=True)
+    updatedAt = serializers.DateTimeField(source="updated_at", read_only=True)
     details = WorkDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = WorkSession
-        fields = ["id", "buildingId", "buildingName", "workDate", "createdAt", "details"]
+        fields = ["id", "buildingId", "buildingName", "workDate", "createdAt", "updatedAt", "details"]
 
     def get_buildingId(self, obj):
         return str(obj.building_id)
@@ -101,6 +102,7 @@ class FlatAssignmentSerializer(serializers.Serializer):
     category = serializers.SerializerMethodField()
     count = serializers.DecimalField(source="total_workers", max_digits=6, decimal_places=1)
     date = serializers.SerializerMethodField()
+    updatedAt = serializers.DateTimeField(source="max_updated_at", read_only=True)
     details = serializers.SerializerMethodField()
 
     def get_category(self, obj):

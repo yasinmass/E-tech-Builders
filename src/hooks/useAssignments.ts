@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getFilteredAssignments,
   createAssignment,
+  updateAssignment,
   type CreateAssignmentPayload,
 } from "@/api/assignments";
 
@@ -21,6 +22,25 @@ export function useCreateAssignment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateAssignmentPayload) => createAssignment(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ASSIGNMENTS_KEY });
+    },
+  });
+}
+
+/** Update an existing assignment record, then invalidate the list */
+export function useUpdateAssignment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      type,
+      payload,
+    }: {
+      id: string;
+      type: "builder" | "etech";
+      payload: any;
+    }) => updateAssignment(id, type, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ASSIGNMENTS_KEY });
     },

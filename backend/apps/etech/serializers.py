@@ -84,6 +84,7 @@ class ETechFlatAssignmentSerializer(serializers.Serializer):
     category = serializers.SerializerMethodField()
     count = serializers.DecimalField(source="total_workers", max_digits=6, decimal_places=1)
     date = serializers.SerializerMethodField()
+    updatedAt = serializers.DateTimeField(source="max_updated_at", read_only=True)
     details = serializers.SerializerMethodField()
     type = serializers.ReadOnlyField(default="etech")
 
