@@ -70,7 +70,7 @@ export function BreakdownModal({
               <Users className="w-3.5 h-3.5" /> Assigned Members
             </h3>
             <div className="space-y-2">
-              {assignment.details.map((detail, idx) => (
+              {assignment.details?.map((detail, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card hover:bg-muted/30 transition-colors group"
@@ -80,27 +80,44 @@ export function BreakdownModal({
                     <span className="font-medium text-sm">{detail.category}</span>
                   </div>
                   {assignment.type === "builder" && (
-                    <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold">
-                      {detail.count}
-                    </span>
+                    <div className="flex gap-2">
+                       <span className="bg-emerald-50 text-emerald-600 border border-emerald-100 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        ₹ {detail.salary}
+                      </span>
+                      <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold">
+                        {detail.count}
+                      </span>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="pt-4 border-t border-border flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">Total Engagement</div>
-            <div className="flex gap-2 text-sm">
-              <span className="font-bold underline decoration-primary/30 underline-offset-4">
-                {assignment.type === "builder" ? assignment.category : `${assignment.details.length} Members`}
-              </span>
-              <span className="text-muted-foreground px-1">•</span>
-              <span className="font-bold text-primary">
-                {assignment.type === "builder" ? `${assignment.count} Workers` : "Project Duty"}
-              </span>
+          {assignment.type === "builder" && (
+            <div className="pt-4 border-t border-border flex items-center justify-between">
+              <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Total Summary</div>
+              <div className="flex gap-4">
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">Total Workers</span>
+                  <span className="text-sm font-bold text-primary">{assignment.count}</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">Total Rupee</span>
+                  <span className="text-sm font-bold text-emerald-600">
+                    ₹ {assignment.details?.reduce((acc, d) => acc + (Number(d.salary) * Number(d.count)), 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {assignment.type === "etech" && (
+            <div className="pt-4 border-t border-border flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">Engagement Status</div>
+              <div className="font-bold text-primary">Project Duty</div>
+            </div>
+          )}
         </div>
       )}
     </Modal>

@@ -154,11 +154,14 @@ class FilterView(generics.ListAPIView):
                     | Q(date_str__icontains=search)
                 )
             
+            from django.db.models.functions import Coalesce
+            from django.db.models import Value, DecimalField
+            
             builder_grouped = (
                 builder_qs.values("building", "work_date")
                 .annotate(
                     total_categories=Count("details__category", distinct=True),
-                    total_workers=Sum("details__count"),
+                    total_workers=Coalesce(Sum("details__count"), Value(0, output_field=DecimalField())),
                     work_time=Max("work_time"),
                     max_id=Max("id"),
                     max_updated_at=Max("updated_at"),
@@ -187,7 +190,7 @@ class FilterView(generics.ListAPIView):
                 etech_qs.values("project", "work_date")
                 .annotate(
                     total_categories=Count("details__category", distinct=True),
-                    total_workers=Sum("details__count"),
+                    total_workers=Coalesce(Sum("details__count"), Value(0, output_field=DecimalField())),
                     work_time=Max("work_time"),
                     max_id=Max("id"),
                     max_updated_at=Max("updated_at"),

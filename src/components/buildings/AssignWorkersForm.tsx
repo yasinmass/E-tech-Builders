@@ -5,7 +5,7 @@ import { WORKER_CATEGORIES, type Building, type WorkerCategory } from "@/data/bu
 import { useCreateAssignment } from "@/hooks/useAssignments";
 import { toast } from "sonner";
 
-type Row = { id: string; category: WorkerCategory; count: number };
+type Row = { id: string; category: WorkerCategory; salary: number; count: number };
 
 export function AssignWorkersForm({ building }: { building: Building }) {
   const [rows, setRows] = useState<Row[]>([]);
@@ -16,7 +16,7 @@ export function AssignWorkersForm({ building }: { building: Building }) {
 
   useEffect(() => {
     setMounted(true);
-    setRows([{ id: crypto.randomUUID(), category: "Mason", count: 1 }]);
+    setRows([{ id: crypto.randomUUID(), category: "Mason", salary: 0, count: 1 }]);
     setWorkDate(new Date().toISOString().split("T")[0]);
     setWorkTime(new Date().toTimeString().split(' ')[0].slice(0, 5));
   }, []);
@@ -35,7 +35,7 @@ export function AssignWorkersForm({ building }: { building: Building }) {
     setRows((r) => r.map((row) => (row.id === id ? { ...row, ...patch } : row)));
 
   const addRow = () =>
-    setRows((r) => [...r, { id: crypto.randomUUID(), category: "Electrician", count: 1 }]);
+    setRows((r) => [...r, { id: crypto.randomUUID(), category: "Electrician", salary: 0, count: 1 }]);
 
   const removeRow = (id: string) =>
     setRows((r) => (r.length === 1 ? r : r.filter((row) => row.id !== id)));
@@ -52,10 +52,10 @@ export function AssignWorkersForm({ building }: { building: Building }) {
         building: parseInt(building.id),
         work_date: workDate,
         work_time: workTime,
-        details: valid.map(({ category, count }) => ({ category, count })),
+        details: valid.map(({ category, salary, count }) => ({ category, salary, count })),
       });
       toast.success("Assignment saved successfully");
-      setRows([{ id: crypto.randomUUID(), category: "Mason", count: 1 }]);
+      setRows([{ id: crypto.randomUUID(), category: "Mason", salary: 0, count: 1 }]);
     } catch (err) {
       toast.error("Failed to save assignment");
     }
@@ -120,10 +120,18 @@ export function AssignWorkersForm({ building }: { building: Building }) {
               <input
                 type="number"
                 min={0}
+                placeholder="Salary"
+                value={row.salary}
+                onChange={(e) => update(row.id, { salary: Math.max(0, parseFloat(e.target.value) || 0) })}
+                className="w-28 px-3 py-2.5 rounded-xl border border-border bg-card focus:border-ring focus:ring-4 focus:ring-ring/20 outline-none"
+              />
+              <input
+                type="number"
+                min={0}
                 step={0.5}
                 value={row.count}
                 onChange={(e) => update(row.id, { count: Math.max(0, parseFloat(e.target.value) || 0) })}
-                className="w-24 px-3 py-2.5 rounded-xl border border-border bg-card focus:border-ring focus:ring-4 focus:ring-ring/20 outline-none"
+                className="w-20 px-3 py-2.5 rounded-xl border border-border bg-card focus:border-ring focus:ring-4 focus:ring-ring/20 outline-none"
               />
               <button
                 onClick={() => removeRow(row.id)}

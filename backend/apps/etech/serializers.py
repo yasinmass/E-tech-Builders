@@ -93,18 +93,24 @@ class ETechFlatAssignmentSerializer(serializers.Serializer):
         return f"{count} Categories"
 
     def get_date(self, obj):
-        date_str = obj['work_date'].isoformat()
+        work_date = obj.get('work_date')
+        if not work_date:
+            return "2000-01-01T00:00:00.000Z"
+            
+        date_str = work_date.isoformat()
         time_str = obj['work_time'].isoformat() if obj.get('work_time') else "00:00:00"
         return f"{date_str}T{time_str}.000Z"
 
     def get_details(self, obj):
+        from django.db.models.functions import Coalesce
+        from django.db.models import Value, Sum, DecimalField
         details = (
             ETechAssignmentDetail.objects.filter(
                 assignment__project_id=obj["project"],
                 assignment__work_date=obj["work_date"],
             )
             .values("category__name")
-            .annotate(total=Sum("count"))
+            .annotate(total=Coalesce(Sum("count"), Value(0, output_field=DecimalField())))
             .order_by("category__name")
         )
         return [{"category": d["category__name"], "count": d["total"]} for d in details]

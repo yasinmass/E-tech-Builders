@@ -33,8 +33,9 @@ def _fmt_time(t):
 def generate_builders_csv(output):
     """Write all builder assignment records to a CSV writer/file-like object."""
     writer = csv.writer(output)
-    writer.writerow(["Date", "Time", "Building Name", "Category", "Count"])
-
+    writer.writerow(["Date", "Time", "Building", "Category", "Salary", "Count"])
+    
+    # Use select_related to optimize query
     details = (
         WorkDetail.objects.select_related("work_session", "work_session__building")
         .order_by("work_session__work_date", "work_session__building__name")
@@ -47,6 +48,7 @@ def generate_builders_csv(output):
             _fmt_time(session.work_time),
             session.building.name,
             detail.category,
+            detail.salary,
             detail.count,
         ])
 

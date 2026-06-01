@@ -86,7 +86,7 @@ export function AssignmentCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-4 pr-32">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 pr-32">
         <Cell icon={Calendar} label="Date" value={date} />
         <Cell icon={Clock} label="Time" value={time} />
         <Cell
@@ -99,14 +99,19 @@ export function AssignmentCard({
           label={assignment.type === "builder" ? "Category" : "Assigned"}
           value={
             assignment.type === "builder" 
-              ? assignment.category 
+              ? `${assignment.details?.length || 0} Categories`
               : assignment.count === 1 
-                ? (assignment.details[0]?.category || "1 Member") 
+                ? (assignment.details?.[0]?.category || "1 Member") 
                 : `${assignment.count} Members`
           }
           highlight
         />
-        <Cell icon={Hash} label="Count" value={String(assignment.count)} highlight />
+        <Cell 
+          icon={Hash} 
+          label="Count" 
+          value={String(assignment.count)} 
+          highlight 
+        />
       </div>
     </motion.div>
   );

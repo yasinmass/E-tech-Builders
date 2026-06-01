@@ -9,7 +9,7 @@ import { useETechProjects } from "@/hooks/useETech";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Row = { id: string; category: string; count: number };
+type Row = { id: string; category: string; salary: number; count: number };
 
 export function EditAssignmentModal({
   assignment,
@@ -36,6 +36,7 @@ export function EditAssignmentModal({
         assignment.details.map((d) => ({
           id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
           category: d.category,
+          salary: d.salary || 0,
           count: d.count,
         }))
       );
@@ -53,6 +54,7 @@ export function EditAssignmentModal({
       {
         id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
         category: assignment.type === "builder" ? "Mason" : "",
+        salary: 0,
         count: 1,
       },
     ]);
@@ -74,6 +76,7 @@ export function EditAssignmentModal({
         details: validRows.map((r) => ({
           category: assignment.type === "builder" ? r.category : undefined,
           category_name: assignment.type === "etech" ? r.category : undefined,
+          salary: r.salary,
           count: r.count,
         })),
       };
@@ -176,8 +179,8 @@ export function EditAssignmentModal({
         </div>
 
         {/* Rows */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="space-y-4 flex-1 min-h-0 flex flex-col">
+          <div className="flex items-center justify-between flex-shrink-0">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Worker Breakdown</h4>
             <button
               onClick={addRow}
@@ -186,7 +189,7 @@ export function EditAssignmentModal({
               + Add Row
             </button>
           </div>
-          <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-2 scrollbar-thin">
+          <div className="space-y-2.5 overflow-y-auto pr-2 scrollbar-thin min-h-[120px]">
             <AnimatePresence initial={false}>
               {rows.map((row) => (
                 <motion.div
@@ -216,11 +219,19 @@ export function EditAssignmentModal({
                   )}
                   <input
                     type="number"
+                    placeholder="Salary"
+                    min={0}
+                    value={row.salary}
+                    onChange={(e) => updateRow(row.id, { salary: Math.max(0, parseFloat(e.target.value) || 0) })}
+                    className="w-24 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:ring-4 focus:ring-primary/10 outline-none"
+                  />
+                  <input
+                    type="number"
                     step={0.5}
                     min={0}
                     value={row.count}
                     onChange={(e) => updateRow(row.id, { count: Math.max(0, parseFloat(e.target.value) || 0) })}
-                    className="w-20 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:ring-4 focus:ring-primary/10 outline-none"
+                    className="w-16 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:ring-4 focus:ring-primary/10 outline-none"
                   />
                   <button
                     onClick={() => removeRow(row.id)}

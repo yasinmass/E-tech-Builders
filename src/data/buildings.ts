@@ -26,6 +26,7 @@ export const WORKER_CATEGORIES: WorkerCategory[] = [
 
 export type AssignmentDetail = {
   category: string;
+  salary: number;
   count: number;
 };
 

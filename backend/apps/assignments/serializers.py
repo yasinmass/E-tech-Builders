@@ -7,7 +7,7 @@ class WorkDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkDetail
-        fields = ["id", "category", "count"]
+        fields = ["id", "category", "count", "salary"]
 
 
 class WorkSessionReadSerializer(serializers.ModelSerializer):
@@ -36,6 +36,7 @@ class WorkDetailWriteSerializer(serializers.Serializer):
 
     category = serializers.ChoiceField(choices=[c[0] for c in CATEGORY_CHOICES])
     count = serializers.DecimalField(max_digits=6, decimal_places=1, min_value=0.1)
+    salary = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
 
 
 class WorkSessionWriteSerializer(serializers.Serializer):
@@ -84,6 +85,7 @@ class WorkSessionWriteSerializer(serializers.Serializer):
                 work_session=session,
                 category=d["category"],
                 count=d["count"],
+                salary=d["salary"],
             )
             for d in details_data
         ])
@@ -106,18 +108,31 @@ class FlatAssignmentSerializer(serializers.Serializer):
     details = serializers.SerializerMethodField()
 
     def get_category(self, obj):
-        count = obj.get("total_categories", 0)
-        return f"{count} Categories"
+        from .models import WorkDetail
+        categories = (
+            WorkDetail.objects.filter(
+                work_session__building_id=obj["building"],
+                work_session__work_date=obj["work_date"],
+            )
+            .values_list("category", flat=True)
+            .distinct()
+            .order_by("category")
+        )
+        return ", ".join(categories) if categories else "No Categories"
 
     def get_date(self, obj):
         # obj is a dict from .values()
-        date_str = obj['work_date'].isoformat()
+        work_date = obj.get('work_date')
+        if not work_date:
+            return "2000-01-01T00:00:00.000Z" # Fallback
+            
+        date_str = work_date.isoformat()
         time_str = obj['work_time'].isoformat() if obj.get('work_time') else "00:00:00"
         return f"{date_str}T{time_str}.000Z"
 
     def get_details(self, obj):
-        from .models import WorkDetail
-        from django.db.models import Sum
+        from django.db.models.functions import Coalesce
+        from django.db.models import Value, Sum, DecimalField
         
         # Get category-wise breakdown for this building and date
         details = (
@@ -125,8 +140,8 @@ class FlatAssignmentSerializer(serializers.Serializer):
                 work_session__building_id=obj["building"],
                 work_session__work_date=obj["work_date"],
             )
-            .values("category")
-            .annotate(total=Sum("count"))
+            .values("category", "salary")
+            .annotate(total=Coalesce(Sum("count"), Value(0, output_field=DecimalField())))
             .order_by("category")
         )
-        return [{"category": d["category"], "count": d["total"]} for d in details]
+        return [{"category": d["category"], "count": d["total"], "salary": d["salary"]} for d in details]

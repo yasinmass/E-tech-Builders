@@ -290,12 +290,18 @@ def generate_workforce_pdf(
 
         for work_date in sorted(date_map.keys()):
             # Aggregate category totals across all sessions on the same date
-            cat_totals: dict[str, float] = {}
+            cat_totals: dict[tuple, float] = {}
             for sess in date_map[work_date]:
                 for detail in sess.details.all():
-                    cat_totals[detail.category] = (
-                        cat_totals.get(detail.category, 0) + float(detail.count)
+                    # Key by (category, salary) to handle cases where same category has different salaries
+                    # though usually it's 1:1 on a single day.
+                    key = (detail.category, float(detail.salary))
+                    cat_totals[key] = (
+                        cat_totals.get(key, 0) + float(detail.count)
                     )
+                    
+                    # For building overall, we group by category and use max/latest salary if needed
+                    # but for now let's just keep category totals for building
                     building_cat_totals[detail.category] = (
                         building_cat_totals.get(detail.category, 0) + float(detail.count)
                     )
@@ -306,9 +312,10 @@ def generate_workforce_pdf(
             # ── Date heading ──
             story.append(Paragraph(_fmt(work_date), S["date_line"]))
 
-            # ── Two-column table: Category | Count ───────────────────────────
-            col_label = usable * 0.75
-            col_count = usable * 0.25
+            # ── Three-column table: Category | Salary | Count ───────────────────────
+            col_label  = usable * 0.50
+            col_salary = usable * 0.25
+            col_count  = usable * 0.25
 
             table_data = []
             # header row
@@ -317,19 +324,27 @@ def generate_workforce_pdf(
                     "hdr", fontName="Helvetica-Bold", fontSize=9,
                     alignment=TA_LEFT, textColor=BLACK
                 )),
+                Paragraph("Salary", ParagraphStyle(
+                    "hdr_c", fontName="Helvetica-Bold", fontSize=9,
+                    alignment=TA_CENTER, textColor=BLACK
+                )),
                 Paragraph("Count", ParagraphStyle(
                     "hdr_r", fontName="Helvetica-Bold", fontSize=9,
                     alignment=TA_RIGHT, textColor=BLACK
                 )),
             ])
-            for cat in sorted(cat_totals.keys()):
-                cnt = cat_totals[cat]
+            for (cat, salary) in sorted(cat_totals.keys()):
+                cnt = cat_totals[(cat, salary)]
                 table_data.append([
                     Paragraph(cat, S["cell_label"]),
+                    Paragraph(f"Rs. {salary:g}", ParagraphStyle(
+                        "cell_sal", fontName="Helvetica", fontSize=9,
+                        alignment=TA_CENTER, textColor=BLACK
+                    )),
                     Paragraph(f"{cnt:g}", S["cell_count"]),
                 ])
 
-            tbl = Table(table_data, colWidths=[col_label, col_count])
+            tbl = Table(table_data, colWidths=[col_label, col_salary, col_count])
             tbl.setStyle(TableStyle([
                 # outer border
                 ("BOX",         (0, 0), (-1, -1), 0.5, BLACK),
@@ -338,6 +353,8 @@ def generate_workforce_pdf(
                 # header row style
                 ("BACKGROUND",  (0, 0), (-1, 0), WHITE),
                 ("LINEBELOW",   (0, 0), (-1, 0), 0.8, BLACK),
+                # Alignment for salary column
+                ("ALIGN",       (1, 0), (1, -1), "CENTER"),
                 # padding
                 ("TOPPADDING",  (0, 0), (-1, -1), 4),
                 ("BOTTOMPADDING",(0, 0), (-1, -1), 4),

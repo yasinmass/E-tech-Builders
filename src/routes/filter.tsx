@@ -53,50 +53,44 @@ function FilterPage() {
 
   return (
     <div>
-      <div className="text-center mb-10 mt-4">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 font-display">Find an assignment</h1>
-        <p className="text-muted-foreground mb-10 leading-relaxed">
-          Click any card to see detailed breakdown or export history.
-        </p>
-
-        <div className="mb-8">
-          <BackupControls />
-        </div>
-
-        {/* ── Export PDF button ─────────────────────────────────────────── */}
-        <div className="mb-8 flex justify-center">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setPdfOpen(true)}
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl font-bold text-sm text-white shadow-soft transition-all
-              bg-gradient-to-r from-[#1E3A5F] to-[#2563EB] hover:shadow-lift hover:opacity-95"
-          >
-            <FileDown className="w-4 h-4" />
-            Export PDF Report
-          </motion.button>
-        </div>
-
-        <div className="max-w-xl mx-auto space-y-6">
-          <SearchBar value={q} onChange={setQ} />
-
-          <div className="flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border w-fit mx-auto">
-            {(["all", "builder", "etech"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setType(t)}
-                className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                  type === t
-                    ? "bg-primary text-primary-foreground shadow-soft"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t === "all" ? "All" : t === "builder" ? "Builders" : "E Tech"}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="max-w-6xl mx-auto pt-6 flex flex-col items-center">
+      {/* 1. Search Bar */}
+      <div className="w-full mb-6">
+        <SearchBar value={q} onChange={setQ} />
       </div>
+
+      {/* 2. Filter Tabs */}
+      <div className="flex items-center justify-center gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border w-fit mb-6">
+        {(["all", "builder", "etech"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setType(t)}
+            className={`px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+              type === t
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t === "all" ? "All" : t === "builder" ? "Builders" : "E Tech"}
+          </button>
+        ))}
+      </div>
+
+      {/* 3. Action Buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        <BackupControls />
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setPdfOpen(true)}
+          className="inline-flex items-center gap-2.5 px-6 h-12 rounded-2xl font-bold text-sm text-white shadow-soft transition-all
+            bg-gradient-to-r from-[#1E3A5F] to-[#2563EB] hover:shadow-lift hover:opacity-95"
+        >
+          <FileDown className="w-4 h-4" />
+          Export PDF Report
+        </motion.button>
+      </div>
+    </div>
 
       <div className="space-y-3 max-w-5xl mx-auto pb-20">
         <AnimatePresence mode="popLayout">

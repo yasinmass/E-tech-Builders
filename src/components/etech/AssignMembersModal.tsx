@@ -150,10 +150,10 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
 
   return (
     <Dialog open={!!building} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-[500px] gap-0 p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl bg-white">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl bg-white">
         <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30" />
         
-        <DialogHeader className="px-8 pt-8 pb-6 border-b border-gray-100">
+        <DialogHeader className="px-8 pt-8 pb-6 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
               <Users className="w-6 h-6 text-primary" />
@@ -192,7 +192,7 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
               </div>
             </div>
           </div>
-
+ 
           <div className="relative mt-5 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
             <Input
@@ -203,8 +203,8 @@ export function AssignMembersModal({ building, onClose }: AssignMembersModalProp
             />
           </div>
         </DialogHeader>
-
-        <div className="px-6 py-5 max-h-[420px] overflow-y-auto space-y-3 custom-scrollbar">
+ 
+        <div className="px-6 py-5 flex-1 min-h-0 overflow-y-auto space-y-3 custom-scrollbar">
           {filteredMembers.length > 0 ? (
             filteredMembers.map((member) => (
               <MemberAssignRow

@@ -46,41 +46,32 @@ export function BackupControls() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center justify-center gap-3">
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="rounded-2xl px-6 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-soft flex items-center gap-2 transition-all"
-          >
-            {isDownloading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Download className="w-5 h-5" />
-            )}
-            {isDownloading ? "Generating..." : "Download CSV Backup"}
-          </Button>
-        </motion.div>
+    <div className="flex items-center gap-3">
+      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="rounded-2xl px-6 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-soft flex items-center gap-2 transition-all"
+        >
+          {isDownloading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Download className="w-5 h-5" />
+          )}
+          {isDownloading ? "Generating..." : "Download CSV Backup"}
+        </Button>
+      </motion.div>
 
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Button
-            variant="outline"
-            onClick={fetchHistory}
-            className="rounded-2xl px-6 h-12 border-primary/20 hover:bg-primary/5 text-primary font-bold shadow-soft flex items-center gap-2 transition-all"
-          >
-            <History className="w-5 h-5" />
-            Backup History
-          </Button>
-        </motion.div>
-      </div>
-
-      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
-          Weekly Auto Backup Enabled
-        </span>
-      </div>
+      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <Button
+          variant="outline"
+          onClick={fetchHistory}
+          className="rounded-2xl px-6 h-12 border-primary/20 hover:bg-primary/5 text-primary font-bold shadow-soft flex items-center gap-2 transition-all"
+        >
+          <History className="w-5 h-5" />
+          Backup History
+        </Button>
+      </motion.div>
 
       <AnimatePresence>
         {showHistory && history && (

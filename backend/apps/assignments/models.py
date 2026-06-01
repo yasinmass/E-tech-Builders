@@ -52,6 +52,7 @@ class WorkDetail(models.Model):
     )
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     count = models.DecimalField(max_digits=6, decimal_places=1, default=0)
+    salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     class Meta:
         verbose_name = "Work Detail"
