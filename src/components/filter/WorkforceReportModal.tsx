@@ -33,10 +33,15 @@ export function WorkforceReportModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [fromDate, setFromDate] = useState(firstOfMonthISO());
-  const [toDate, setToDate]     = useState(todayISO());
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate]     = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    setFromDate(firstOfMonthISO());
+    setToDate(todayISO());
+  }, []);
 
   const { data: buildings = [], isLoading: buildingsLoading } = useBuildings();
 

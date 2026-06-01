@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WORKER_CATEGORIES, type Building, type WorkerCategory } from "@/data/buildings";
@@ -8,13 +8,28 @@ import { toast } from "sonner";
 type Row = { id: string; category: WorkerCategory; count: number };
 
 export function AssignWorkersForm({ building }: { building: Building }) {
-  const [rows, setRows] = useState<Row[]>([
-    { id: crypto.randomUUID(), category: "Mason", count: 1 },
-  ]);
-  const [workDate, setWorkDate] = useState(new Date().toISOString().split("T")[0]);
-  const [workTime, setWorkTime] = useState(new Date().toTimeString().split(' ')[0].slice(0, 5));
-  
+  const [rows, setRows] = useState<Row[]>([]);
+  const [workDate, setWorkDate] = useState("");
+  const [workTime, setWorkTime] = useState("");
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setRows([{ id: crypto.randomUUID(), category: "Mason", count: 1 }]);
+    setWorkDate(new Date().toISOString().split("T")[0]);
+    setWorkTime(new Date().toTimeString().split(' ')[0].slice(0, 5));
+  }, []);
+
   const createAssignment = useCreateAssignment();
+
+  if (!mounted) {
+    return (
+      <div className="mt-6 border-t border-border pt-6 flex justify-center py-10">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   const update = (id: string, patch: Partial<Row>) =>
     setRows((r) => r.map((row) => (row.id === id ? { ...row, ...patch } : row)));

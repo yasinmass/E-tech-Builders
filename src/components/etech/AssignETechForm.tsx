@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, Save, Loader2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type ETechProject } from "@/data/buildings";
@@ -9,7 +9,11 @@ type Row = { id: string; category: number; count: number };
 
 export function AssignETechForm({ project }: { project: ETechProject }) {
   const [rows, setRows] = useState<Row[]>([]);
-  const [workDate, setWorkDate] = useState(new Date().toISOString().split("T")[0]);
+  const [workDate, setWorkDate] = useState("");
+
+  useEffect(() => {
+    setWorkDate(new Date().toISOString().split("T")[0]);
+  }, []);
   
   const createAssignment = useCreateETechAssignment();
 

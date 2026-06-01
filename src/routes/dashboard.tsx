@@ -15,7 +15,6 @@ import {
   Search,
 } from "lucide-react";
 import api from "@/api/axios";
-import { useAppStore } from "@/store/app-store";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/dashboard")({
@@ -133,7 +132,6 @@ function StatCard({
 
 function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats();
-  const { members } = useAppStore();
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";

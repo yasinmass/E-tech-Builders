@@ -16,7 +16,7 @@ import { useCreateETechAssignment } from "@/hooks/useETech";
 import type { Building } from "@/data/buildings";
 
 import { useAssignments } from "@/hooks/useAssignments";
-import { useAppStore } from "@/store/app-store";
+import { useMembers } from "@/hooks/useMembers";
 
 interface AssignMembersModalProps {
   building: Building | null;
@@ -32,12 +32,17 @@ interface Selection {
 }
 
 export function AssignMembersModal({ building, onClose }: AssignMembersModalProps) {
-  const { members } = useAppStore();
+  const { data: members = [] } = useMembers();
   const [search, setSearch] = useState("");
   const [selections, setSelections] = useState<Selection>({});
   
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState(new Date().toTimeString().split(' ')[0].slice(0, 5));
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    setDate(new Date().toISOString().split('T')[0]);
+    setTime(new Date().toTimeString().split(' ')[0].slice(0, 5));
+  }, []);
 
   const mutation = useCreateETechAssignment();
   // Fetch existing assignments to check for conflicts

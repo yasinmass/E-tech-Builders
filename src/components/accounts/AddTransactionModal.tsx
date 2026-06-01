@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -46,8 +46,15 @@ const EXPENSE_CATEGORIES = [
 export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransactionModalProps) {
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState("");
   const [category, setCategory] = useState("");
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setDate(new Date().toISOString().split('T')[0]);
+  }, []);
   const [otherCategory, setOtherCategory] = useState("");
   const [notes, setNotes] = useState("");
   

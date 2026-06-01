@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.etech",
     "apps.backup",
     "apps.finance",
+    "apps.members",
 ]
 
 MIDDLEWARE = [

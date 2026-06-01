@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { isAuthenticated } from "@/api/auth";
 import { useRouter, useRouterState } from "@tanstack/react-router";
@@ -6,15 +6,25 @@ import { useRouter, useRouterState } from "@tanstack/react-router";
 export function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { pathname } = useRouterState({ select: (s) => s.location });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated() && pathname !== "/login") {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated() && pathname !== "/login") {
       router.navigate({ to: "/login" });
     }
-  }, [pathname, router]);
+  }, [pathname, router, mounted]);
+
+  // Don't render anything that depends on window/localStorage during SSR or first client pass
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   if (!isAuthenticated() && pathname !== "/login") {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (

@@ -8,8 +8,9 @@ import { type Member } from "@/data/members";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useAppStore, addMember, deleteMember, updateMember } from "@/store/app-store";
+import { useMembers, useCreateMember, useDeleteMember, useUpdateMember } from "@/hooks/useMembers";
 import { EditMemberModal } from "@/components/members/EditMemberModal";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/members")({
   head: () => ({
@@ -22,27 +23,43 @@ export const Route = createFileRoute("/members")({
 });
 
 function MembersPage() {
-  const { members } = useAppStore();
+  const { data: members = [], isLoading } = useMembers();
+  const createMutation = useCreateMember();
+  const updateMutation = useUpdateMember();
+  const deleteMutation = useDeleteMember();
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleAddMember = (data: Omit<Member, "id" | "createdAt">) => {
-    addMember(data);
-    toast.success("Member added successfully");
-    setIsAddModalOpen(false);
+  const handleAddMember = async (data: any) => {
+    try {
+      await createMutation.mutateAsync(data);
+      toast.success("Member added successfully");
+      setIsAddModalOpen(false);
+    } catch (err) {
+      toast.error("Failed to add member");
+    }
   };
 
-  const handleUpdateMember = (id: string, data: Partial<Member>) => {
-    updateMember(id, data);
-    toast.success("Member updated successfully");
-    setEditingMember(null);
+  const handleUpdateMember = async (id: string, data: any) => {
+    try {
+      await updateMutation.mutateAsync({ id, payload: data });
+      toast.success("Member updated successfully");
+      setEditingMember(null);
+    } catch (err) {
+      toast.error("Failed to update member");
+    }
   };
 
-  const handleDeleteMember = (id: string) => {
+  const handleDeleteMember = async (id: string) => {
     if (confirm("Are you sure you want to remove this member?")) {
-      deleteMember(id);
-      toast.success("Member removed from fleet");
+      try {
+        await deleteMutation.mutateAsync(id);
+        toast.success("Member removed from fleet");
+      } catch (err) {
+        toast.error("Failed to delete member");
+      }
     }
   };
 
@@ -120,7 +137,17 @@ function MembersPage() {
       {/* Members List */}
       <div className="space-y-4">
         <AnimatePresence mode="popLayout" initial={false}>
-          {filteredMembers.length > 0 ? (
+          {isLoading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex justify-center py-20"
+            >
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </motion.div>
+          ) : filteredMembers.length > 0 ? (
             filteredMembers.map((member, index) => (
               <motion.div
                 key={member.id}
