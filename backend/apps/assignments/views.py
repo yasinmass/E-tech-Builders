@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q
-from django.db.models.functions import Cast
-from django.db.models import CharField
+from django.db.models import CharField, Sum, Count, Max, Value, DecimalField
+from django.db.models.functions import Cast, Coalesce
 
 from .models import WorkSession, WorkDetail
 from .serializers import (
@@ -117,7 +117,7 @@ class AssignmentDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-from django.db.models import Sum, Count, Max
+
 
 from apps.etech.models import ETechAssignment
 from apps.etech.serializers import ETechFlatAssignmentSerializer
@@ -154,8 +154,7 @@ class FilterView(generics.ListAPIView):
                     | Q(date_str__icontains=search)
                 )
             
-            from django.db.models.functions import Coalesce
-            from django.db.models import Value, DecimalField
+
             
             builder_grouped = (
                 builder_qs.values("building", "work_date")

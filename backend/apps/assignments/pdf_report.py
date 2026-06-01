@@ -113,6 +113,15 @@ def _make_styles():
             fontName="Helvetica",
             fontSize=9,
             leading=12,
+            alignment=TA_CENTER,
+            textColor=BLACK,
+        ),
+        # -- table cell - value (currency) --
+        "cell_val": ParagraphStyle(
+            "cell_val",
+            fontName="Helvetica",
+            fontSize=9,
+            leading=12,
             alignment=TA_RIGHT,
             textColor=BLACK,
         ),
@@ -287,6 +296,7 @@ def generate_workforce_pdf(
         building_total: float = 0.0
         # Accumulate per-building category totals for the Overall Summary
         building_cat_totals: dict[str, float] = {}
+        building_cat_costs: dict[str, float] = {}
 
         for work_date in sorted(date_map.keys()):
             # Aggregate category totals across all sessions on the same date
@@ -300,10 +310,11 @@ def generate_workforce_pdf(
                         cat_totals.get(key, 0) + float(detail.count)
                     )
                     
-                    # For building overall, we group by category and use max/latest salary if needed
-                    # but for now let's just keep category totals for building
                     building_cat_totals[detail.category] = (
                         building_cat_totals.get(detail.category, 0) + float(detail.count)
+                    )
+                    building_cat_costs[detail.category] = (
+                        building_cat_costs.get(detail.category, 0) + (float(detail.count) * float(detail.salary))
                     )
 
             day_total: float = sum(cat_totals.values())
@@ -324,27 +335,25 @@ def generate_workforce_pdf(
                     "hdr", fontName="Helvetica-Bold", fontSize=9,
                     alignment=TA_LEFT, textColor=BLACK
                 )),
-                Paragraph("Salary", ParagraphStyle(
+                Paragraph("Count", ParagraphStyle(
                     "hdr_c", fontName="Helvetica-Bold", fontSize=9,
                     alignment=TA_CENTER, textColor=BLACK
                 )),
-                Paragraph("Count", ParagraphStyle(
+                Paragraph("Salary", ParagraphStyle(
                     "hdr_r", fontName="Helvetica-Bold", fontSize=9,
                     alignment=TA_RIGHT, textColor=BLACK
                 )),
             ])
             for (cat, salary) in sorted(cat_totals.keys()):
                 cnt = cat_totals[(cat, salary)]
+                total_amount = cnt * salary
                 table_data.append([
                     Paragraph(cat, S["cell_label"]),
-                    Paragraph(f"Rs. {salary:g}", ParagraphStyle(
-                        "cell_sal", fontName="Helvetica", fontSize=9,
-                        alignment=TA_CENTER, textColor=BLACK
-                    )),
                     Paragraph(f"{cnt:g}", S["cell_count"]),
+                    Paragraph(f"Rs. {total_amount:,.2f}", S["cell_val"]),
                 ])
 
-            tbl = Table(table_data, colWidths=[col_label, col_salary, col_count])
+            tbl = Table(table_data, colWidths=[col_label, col_count, col_salary])
             tbl.setStyle(TableStyle([
                 # outer border
                 ("BOX",         (0, 0), (-1, -1), 0.5, BLACK),
@@ -353,8 +362,9 @@ def generate_workforce_pdf(
                 # header row style
                 ("BACKGROUND",  (0, 0), (-1, 0), WHITE),
                 ("LINEBELOW",   (0, 0), (-1, 0), 0.8, BLACK),
-                # Alignment for salary column
-                ("ALIGN",       (1, 0), (1, -1), "CENTER"),
+                # Alignment for columns
+                ("ALIGN",       (1, 0), (1, -1), "CENTER"), # Count
+                ("ALIGN",       (2, 0), (2, -1), "RIGHT"),  # Salary
                 # padding
                 ("TOPPADDING",  (0, 0), (-1, -1), 4),
                 ("BOTTOMPADDING",(0, 0), (-1, -1), 4),
@@ -380,32 +390,68 @@ def generate_workforce_pdf(
             )
         ))
 
-        col_label_b = usable * 0.75
+        col_label_b = usable * 0.50
+        col_cost_b  = usable * 0.25
         col_count_b = usable * 0.25
 
         bld_cat_data = []
+        # Header row for the sub-summary
+        bld_cat_data.append([
+            Paragraph("Category", S["cell_label"]),
+            Paragraph("Count", ParagraphStyle(
+                "sum_hdr_c", fontName="Helvetica-Bold", fontSize=9,
+                alignment=TA_CENTER, textColor=BLACK
+            )),
+            Paragraph("Salary", ParagraphStyle(
+                "sum_hdr_r", fontName="Helvetica-Bold", fontSize=9,
+                alignment=TA_RIGHT, textColor=BLACK
+            )),
+        ])
+
         for cat in sorted(building_cat_totals.keys()):
             cnt = building_cat_totals[cat]
+            cost = building_cat_costs.get(cat, 0)
             bld_cat_data.append([
                 Paragraph(cat, S["cell_label"]),
                 Paragraph(
                     f"{cnt:g}",
-                    ParagraphStyle(
-                        "bld_cnt",
-                        fontName="Helvetica-Bold",
-                        fontSize=9,
-                        leading=12,
-                        alignment=TA_RIGHT,
-                        textColor=BLACK,
-                    )
+                    S["cell_count"]
+                ),
+                Paragraph(
+                    f"Rs. {cost:,.2f}",
+                    S["cell_val"]
                 ),
             ])
 
+        # Calculate totals for the building
+        total_workers = sum(building_cat_totals.values())
+        total_cost = sum(building_cat_costs.values())
+        
+        # Total row
+        bld_cat_data.append([
+            Paragraph("Total", ParagraphStyle(
+                "total_lbl", fontName="Helvetica-Bold", fontSize=9,
+                alignment=TA_LEFT, textColor=BLACK
+            )),
+            Paragraph(f"{total_workers:g}", ParagraphStyle(
+                "total_cnt", fontName="Helvetica-Bold", fontSize=9,
+                alignment=TA_CENTER, textColor=BLACK
+            )),
+            Paragraph(f"Rs. {total_cost:,.2f}", ParagraphStyle(
+                "total_cost", fontName="Helvetica-Bold", fontSize=9,
+                alignment=TA_RIGHT, textColor=BLACK
+            )),
+        ])
+
         if bld_cat_data:
-            bld_cat_tbl = Table(bld_cat_data, colWidths=[col_label_b, col_count_b])
+            bld_cat_tbl = Table(bld_cat_data, colWidths=[col_label_b, col_count_b, col_cost_b])
             bld_cat_tbl.setStyle(TableStyle([
                 ("BOX",           (0, 0), (-1, -1), 0.8, BLACK),
                 ("INNERGRID",     (0, 0), (-1, -1), 0.3, BLACK),
+                ("LINEBELOW",     (0, 0), (-1, 0), 0.8, BLACK),  # Header underline
+                ("LINEABOVE",     (0, -1), (-1, -1), 0.8, BLACK), # Total row top line
+                ("ALIGN",         (1, 0), (1, -1), "CENTER"),  # Count CENTER
+                ("ALIGN",         (2, 0), (2, -1), "RIGHT"),   # Salary RIGHT
                 ("TOPPADDING",    (0, 0), (-1, -1), 5),
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
                 ("LEFTPADDING",   (0, 0), (-1, -1), 6),
@@ -416,62 +462,59 @@ def generate_workforce_pdf(
 
         story.append(Spacer(1, 16))
 
-        overall_data.append((building.name, building_cat_totals))
+        overall_data.append((building.name, building_cat_totals, building_cat_costs))
 
     # ── Overall Total Summary section ─────────────────────────────────────────
     story.append(HRFlowable(width="100%", thickness=1, color=BLACK, spaceBefore=4, spaceAfter=8))
     story.append(Paragraph("OVERALL TOTAL SUMMARY", S["overall_heading"]))
-
-    # Helper: turn {category: count} dict into "Cat - N, Cat - N" string
+    
+    # Helper: turn {category: count} dicts into "Cat-N, Cat-N" string (no salary)
     def _cat_str(cat_dict: dict) -> str:
-        parts = [f"{cat} - {cnt:g}" for cat, cnt in sorted(cat_dict.items())]
+        parts = [f"{cat}-{cnt:g}" for cat, cnt in sorted(cat_dict.items())]
         return ", ".join(parts) if parts else "-"
 
     # Cell paragraph styles for the summary table
-    _hdr_style  = ParagraphStyle("ov_hdr",  fontName="Helvetica-Bold", fontSize=9,
-                                  alignment=TA_LEFT, textColor=BLACK)
-    _name_style = ParagraphStyle("ov_name", fontName="Helvetica-Bold", fontSize=9,
-                                  alignment=TA_LEFT, textColor=BLACK)
-    _cat_style  = ParagraphStyle("ov_cat",  fontName="Helvetica",      fontSize=9,
-                                  alignment=TA_LEFT, textColor=BLACK, leading=13)
+    _hdr_style   = ParagraphStyle("ov_hdr",   fontName="Helvetica-Bold", fontSize=9, alignment=TA_LEFT, textColor=BLACK)
+    _hdr_c_style = ParagraphStyle("ov_hdr_c", fontName="Helvetica-Bold", fontSize=9, alignment=TA_CENTER, textColor=BLACK)
+    _name_style  = ParagraphStyle("ov_name",  fontName="Helvetica-Bold", fontSize=9, alignment=TA_LEFT, textColor=BLACK)
+    _cat_style   = ParagraphStyle("ov_cat",   fontName="Helvetica",      fontSize=9, alignment=TA_LEFT, textColor=BLACK, leading=13)
+    _val_style   = ParagraphStyle("ov_val",   fontName="Helvetica-Bold", fontSize=9, alignment=TA_RIGHT, textColor=BLACK)
 
-    col_name = usable * 0.30
-    col_cats = usable * 0.70
+    col_name   = usable * 0.25
+    col_cats   = usable * 0.55
+    col_salary = usable * 0.20
 
-    # ── Build summary rows ── header + one row per building ──────────────────
     summary_data = [
-        [Paragraph("Building Name", _hdr_style),
-         Paragraph("Categories",    _hdr_style)],
+        [Paragraph("Building",   _hdr_style),
+         Paragraph("Categories", _hdr_style),
+         Paragraph("Salary",     _hdr_c_style)],
     ]
 
-    # Aggregate grand-total categories across all buildings
-    grand_cat_totals: dict[str, float] = {}
+    grand_total_cost = 0.0
 
-    for bname, bcat_dict in overall_data:
-        for cat, cnt in bcat_dict.items():
-            grand_cat_totals[cat] = grand_cat_totals.get(cat, 0) + cnt
+    for bname, bcat_dict, bcost_dict in overall_data:
+        building_cost = sum(bcost_dict.values())
+        grand_total_cost += building_cost
+        
         summary_data.append([
-            Paragraph(bname, _name_style),
+            Paragraph(bname.lower(), _name_style),
             Paragraph(_cat_str(bcat_dict), _cat_style),
+            Paragraph(f"Rs. {building_cost:,.2f}", _val_style),
         ])
 
-    # ── Total List row ────────────────────────────────────────────────────────
+    # ── GRAND TOTAL row ───────────────────────────────────────────────────────
     summary_data.append([
-        Paragraph("Total List", _name_style),
-        Paragraph(_cat_str(grand_cat_totals), _cat_style),
+        Paragraph("GRAND TOTAL", _name_style),
+        Paragraph("", _cat_style),
+        Paragraph(f"Rs. {grand_total_cost:,.2f}", _val_style),
     ])
 
-    summary_tbl = Table(summary_data, colWidths=[col_name, col_cats])
+    summary_tbl = Table(summary_data, colWidths=[col_name, col_cats, col_salary])
     summary_tbl.setStyle(TableStyle([
-        # outer border
         ("BOX",           (0, 0), (-1, -1), 0.8, BLACK),
-        # all inner grid lines
         ("INNERGRID",     (0, 0), (-1, -1), 0.4, BLACK),
-        # header row — bold underline
         ("LINEBELOW",     (0, 0), (-1, 0),  0.8, BLACK),
-        # "Total List" last row — thicker top line to separate it
         ("LINEABOVE",     (0, -1), (-1, -1), 0.8, BLACK),
-        # padding
         ("TOPPADDING",    (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
         ("LEFTPADDING",   (0, 0), (-1, -1), 6),

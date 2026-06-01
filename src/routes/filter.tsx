@@ -54,6 +54,7 @@ function FilterPage() {
   return (
     <div>
     <div className="max-w-6xl mx-auto pt-6 flex flex-col items-center">
+      <h1 className="text-3xl font-black mb-10 text-foreground tracking-[0.15em] uppercase">E Tech Records</h1>
       {/* 1. Search Bar */}
       <div className="w-full mb-6">
         <SearchBar value={q} onChange={setQ} />
