@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateTransaction } from "@/hooks/useAccounts";
+import { AmountPreview } from "./AmountPreview";
 import { toast } from "sonner";
 import { Loader2, Plus, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
@@ -155,6 +156,8 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
                 />
               </div>
             </div>
+
+            <AmountPreview amount={amount} />
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category</label>

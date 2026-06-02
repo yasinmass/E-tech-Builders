@@ -127,13 +127,13 @@ export function TransactionList({ transactions }: TransactionListProps) {
                        <div className="flex items-center justify-center gap-1">
                          <button
                            onClick={() => setEditingTransaction(t)}
-                           className="p-2.5 rounded-xl text-gray-300 hover:text-primary hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100"
+                           className="p-2.5 rounded-xl text-gray-400 hover:text-primary hover:bg-primary/5 transition-all"
                          >
                            <Pencil className="w-4 h-4" />
                          </button>
                          <button
                            onClick={() => handleDelete(t.id)}
-                           className="p-2.5 rounded-xl text-gray-300 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
+                           className="p-2.5 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
                          >
                            <Trash2 className="w-4 h-4" />
                          </button>
