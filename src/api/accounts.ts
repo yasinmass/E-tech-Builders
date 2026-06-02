@@ -52,6 +52,6 @@ export async function deleteTransaction(id: number) {
 }
 
 export async function updateTransaction(id: number, payload: Partial<CreateTransactionPayload>) {
-  const { data } = await api.put<Transaction>(`/accounts/${id}/`, payload);
+  const { data } = await api.patch<Transaction>(`/accounts/${id}/`, payload);
   return data;
 }
