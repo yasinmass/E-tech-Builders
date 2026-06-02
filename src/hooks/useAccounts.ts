@@ -4,6 +4,7 @@ import {
   getAccountSummary, 
   createTransaction, 
   deleteTransaction,
+  updateTransaction,
   type CreateTransactionPayload 
 } from "@/api/accounts";
 
@@ -43,6 +44,17 @@ export function useDeleteTransaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteTransaction(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [...ACCOUNTS_KEY] });
+    },
+  });
+}
+
+export function useUpdateTransaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Partial<CreateTransactionPayload> }) => 
+      updateTransaction(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [...ACCOUNTS_KEY] });
     },

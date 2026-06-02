@@ -3,6 +3,7 @@ import {
   ArrowUpCircle, 
   ArrowDownCircle, 
   Trash2, 
+  Pencil,
   Calendar, 
   Tag, 
   FileText,
@@ -15,6 +16,7 @@ import { useDeleteTransaction } from "@/hooks/useAccounts";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { EditTransactionModal } from "./EditTransactionModal";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -22,6 +24,7 @@ interface TransactionListProps {
 
 export function TransactionList({ transactions }: TransactionListProps) {
   const [search, setSearch] = useState("");
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const deleteMutation = useDeleteTransaction();
 
   const handleDelete = async (id: number) => {
@@ -69,7 +72,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Description</th>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Amount</th>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Balance</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center w-20">Action</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center w-32">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -121,12 +124,20 @@ export function TransactionList({ transactions }: TransactionListProps) {
                       }).format(t.running_balance || 0)}
                     </td>
                     <td className="px-8 py-6 text-center">
-                       <button
-                         onClick={() => handleDelete(t.id)}
-                         className="p-2.5 rounded-xl text-gray-300 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </button>
+                       <div className="flex items-center justify-center gap-1">
+                         <button
+                           onClick={() => setEditingTransaction(t)}
+                           className="p-2.5 rounded-xl text-gray-300 hover:text-primary hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100"
+                         >
+                           <Pencil className="w-4 h-4" />
+                         </button>
+                         <button
+                           onClick={() => handleDelete(t.id)}
+                           className="p-2.5 rounded-xl text-gray-300 hover:text-rose-600 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </button>
+                       </div>
                     </td>
                   </motion.tr>
                 ))}
@@ -140,6 +151,11 @@ export function TransactionList({ transactions }: TransactionListProps) {
           )}
         </div>
       </div>
+      <EditTransactionModal 
+        transaction={editingTransaction}
+        isOpen={!!editingTransaction}
+        onClose={() => setEditingTransaction(null)}
+      />
     </div>
   );
 }

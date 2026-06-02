@@ -50,3 +50,8 @@ export async function createTransaction(payload: CreateTransactionPayload) {
 export async function deleteTransaction(id: number) {
   return api.delete(`/accounts/${id}/`);
 }
+
+export async function updateTransaction(id: number, payload: Partial<CreateTransactionPayload>) {
+  const { data } = await api.put<Transaction>(`/accounts/${id}/`, payload);
+  return data;
+}
