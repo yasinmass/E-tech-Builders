@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -58,7 +58,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
   }, []);
   const [otherCategory, setOtherCategory] = useState("");
   const [notes, setNotes] = useState("");
-  
+
   const mutation = useCreateTransaction();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +102,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
         <div className={`h-2 w-full ${type === "income" ? "bg-emerald-500" : "bg-rose-500"}`} />
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
@@ -118,18 +118,16 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
               <button
                 type="button"
                 onClick={() => { setType("income"); setCategory(""); }}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
-                  type === "income" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === "income" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                  }`}
               >
                 <ArrowUpCircle className="w-4 h-4" /> Income
               </button>
               <button
                 type="button"
                 onClick={() => { setType("expense"); setCategory(""); }}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
-                  type === "expense" ? "bg-white text-rose-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${type === "expense" ? "bg-white text-rose-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                  }`}
               >
                 <ArrowDownCircle className="w-4 h-4" /> Expense
               </button>
@@ -161,21 +159,30 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category</label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-medium">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl border-gray-100 shadow-xl">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value} className="rounded-xl py-3 px-4 focus:bg-gray-50">
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {type === "income" ? (
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-medium">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl border-gray-100 shadow-xl">
+                    {INCOME_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value} className="rounded-xl py-3 px-4 focus:bg-gray-50">
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  placeholder="Enter category (e.g. Sand, Cement, Steel)..."
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-medium"
+                />
+              )}
             </div>
 
-            {category === "other" && (
+            {type === "income" && category === "other" && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -214,9 +221,8 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
             <Button
               type="submit"
               disabled={mutation.isPending}
-              className={`flex-1 h-14 rounded-2xl font-bold text-white shadow-lift transition-all active:scale-95 ${
-                type === "income" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
-              }`}
+              className={`flex-1 h-14 rounded-2xl font-bold text-white shadow-lift transition-all active:scale-95 ${type === "income" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
+                }`}
             >
               {mutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Entry"}
             </Button>
