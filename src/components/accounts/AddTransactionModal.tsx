@@ -113,7 +113,7 @@ export function AddTransactionModal({ buildingId, isOpen, onClose }: AddTransact
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="max-h-[60vh] overflow-y-auto pr-2 -mr-2 space-y-4 scrollbar-thin scrollbar-thumb-gray-200">
             <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 rounded-2xl">
               <button
                 type="button"
