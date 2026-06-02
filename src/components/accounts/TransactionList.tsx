@@ -63,16 +63,16 @@ export function TransactionList({ transactions }: TransactionListProps) {
       </div>
 
       <div className="bg-white rounded-[2.5rem] shadow-soft border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200">
+          <table className="w-full min-w-[800px] text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-50">
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Date</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Category</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Description</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Amount</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Balance</th>
-                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center w-32">Action</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Date</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Category</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Description</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Amount</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Balance</th>
+                <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center w-32">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -86,7 +86,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                     transition={{ delay: i * 0.05 }}
                     className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
                   >
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3 h-3 text-gray-400" />
                         <span className="text-sm font-medium text-gray-600">
@@ -94,7 +94,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <div className="flex items-center gap-2">
                         <Tag className={`w-3 h-3 ${t.transaction_type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`} />
                         <span className="text-sm font-bold text-gray-900 capitalize">
@@ -102,7 +102,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <div className="flex items-center gap-2">
                         <FileText className="w-3 h-3 text-gray-400" />
                         <span className="text-sm text-gray-500 truncate max-w-[200px] font-medium">
@@ -110,7 +110,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
                         </span>
                       </div>
                     </td>
-                    <td className={`px-8 py-6 text-right font-bold tabular-nums ${
+                    <td className={`px-6 py-6 text-right font-bold tabular-nums ${
                       t.transaction_type === 'income' ? 'text-emerald-600' : 'text-rose-600'
                     }`}>
                       {t.transaction_type === 'income' ? '+' : '-'}
@@ -118,12 +118,12 @@ export function TransactionList({ transactions }: TransactionListProps) {
                         minimumFractionDigits: 1,
                       }).format(Number(t.amount))}
                     </td>
-                    <td className="px-8 py-6 text-right font-bold text-gray-900 tabular-nums">
+                    <td className="px-6 py-6 text-right font-bold text-gray-900 tabular-nums">
                       {new Intl.NumberFormat('en-IN', {
                         minimumFractionDigits: 1,
                       }).format(t.running_balance || 0)}
                     </td>
-                    <td className="px-8 py-6 text-center">
+                    <td className="px-6 py-6 text-center">
                        <div className="flex items-center justify-center gap-1">
                          <button
                            onClick={() => setEditingTransaction(t)}
